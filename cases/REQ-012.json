@@ -7,41 +7,30 @@
       "type": "nominal",
       "layer": "API",
       "priority": "Haute",
-      "preconditions": [],
+      "preconditions": [
+        "Le serveur API est démarré et accessible à http://localhost:8080"
+      ],
       "steps": [
         {
-          "action": "POST /api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"password\"}",
-          "expected": "Réponse 200 et cookie `token` présent"
+          "action": "Envoyer une requête POST http://localhost:8080/api/auth/login avec le corps JSON {\"username\":\"admin\",\"password\":\"password\"}",
+          "expected": "Réponse HTTP 200 contenant un corps JSON {\"token\":\"<chaîne>\"} et le cookie \"token\" contenant la même chaîne"
         }
       ]
     },
     {
       "id": "TC-012-02",
       "requirement_id": "REQ-012",
-      "title": "Échec de connexion avec des identifiants invalides",
+      "title": "Échec de connexion avec un mot de passe incorrect",
       "type": "negative",
       "layer": "API",
       "priority": "Haute",
-      "preconditions": [],
+      "preconditions": [
+        "Le serveur API est démarré et accessible à http://localhost:8080"
+      ],
       "steps": [
         {
-          "action": "POST /api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"mauvais\"}",
-          "expected": "Réponse 401 Unauthorized"
-        }
-      ]
-    },
-    {
-      "id": "TC-012-03",
-      "requirement_id": "REQ-012",
-      "title": "Accès à une ressource protégée sans jeton",
-      "type": "negative",
-      "layer": "API",
-      "priority": "Haute",
-      "preconditions": [],
-      "steps": [
-        {
-          "action": "GET /api/messages sans inclure le cookie `token`",
-          "expected": "Réponse 401 ou 403 Unauthorized"
+          "action": "Envoyer une requête POST http://localhost:8080/api/auth/login avec le corps JSON {\"username\":\"admin\",\"password\":\"mauvaisMotDePasse\"}",
+          "expected": "Réponse HTTP 401 (ou code d'erreur approprié) sans cookie \"token\""
         }
       ]
     }

@@ -3,53 +3,63 @@
     {
       "id": "TC-001-01",
       "requirement_id": "REQ-001",
-      "title": "Connexion administrateur réussie (API)",
+      "title": "Connexion administrateur avec identifiants valides",
       "type": "nominal",
       "layer": "API",
       "priority": "Haute",
       "preconditions": [
-        "Le serveur API est disponible",
-        "L'utilisateur admin existe avec le mot de passe 'password'"
+        "Le serveur API est démarré et accessible à http://localhost:8080"
       ],
       "steps": [
         {
-          "action": "Envoyer une requête POST /api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"password\"}",
-          "expected": "Réponse HTTP 200 et le cookie 'token' présent dans la réponse"
+          "action": "Envoyer une requête POST http://localhost:8080/api/auth/login avec le corps JSON {\"username\":\"admin\",\"password\":\"password\"}",
+          "expected": "Réponse 200 et corps JSON contenant la clé \"token\" avec une chaîne non vide"
+        },
+        {
+          "action": "Vérifier que le cookie \"token\" est présent dans la réponse",
+          "expected": "Le cookie \"token\" contient la même valeur que le token retourné dans le corps"
         }
       ]
     },
     {
       "id": "TC-001-02",
       "requirement_id": "REQ-001",
-      "title": "Connexion administrateur avec mot de passe incorrect (API)",
+      "title": "Connexion administrateur avec mot de passe incorrect",
       "type": "negative",
       "layer": "API",
       "priority": "Haute",
       "preconditions": [
-        "Le serveur API est disponible",
-        "L'utilisateur admin existe"
+        "Le serveur API est démarré et accessible à http://localhost:8080"
       ],
       "steps": [
         {
-          "action": "Envoyer une requête POST /api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"mauvais\"}",
-          "expected": "Réponse HTTP 401 et un message d'erreur indiquant l'échec de l'authentification"
+          "action": "Envoyer une requête POST http://localhost:8080/api/auth/login avec le corps JSON {\"username\":\"admin\",\"password\":\"wrongpass\"}",
+          "expected": "Réponse HTTP 401 (ou code d'erreur indiqué) et corps JSON contenant un message d'erreur indiquant \"Invalid credentials\""
+        },
+        {
+          "action": "Vérifier qu'aucun cookie \"token\" n'est présent dans la réponse",
+          "expected": "Aucun cookie \"token\" n'est renvoyé"
         }
       ]
     },
     {
       "id": "TC-001-03",
       "requirement_id": "REQ-001",
-      "title": "Connexion administrateur avec champs vides (API)",
+      "title": "Connexion administrateur avec champs vides",
       "type": "negative",
       "layer": "API",
       "priority": "Haute",
       "preconditions": [
-        "Le serveur API est disponible"
+        "Le serveur API est démarré et accessible à http://localhost:8080"
       ],
       "steps": [
         {
-          "action": "Envoyer une requête POST /api/auth/login avec le corps {\"username\":\"\",\"password\":\"\"}",
-          "expected": "Réponse HTTP 401 et un message d'erreur indiquant que les champs sont requis"
+          "action": "Envoyer une requête POST http://localhost:8080/api/auth/login avec le corps JSON {\"username\":\"\",\"password\":\"\"}",
+          "expected": "Réponse HTTP 400 (ou code d'erreur indiqué) et corps JSON contenant un message d'erreur indiquant que les champs sont requis"
+        },
+        {
+          "action": "Vérifier qu'aucun cookie \"token\" n'est présent dans la réponse",
+          "expected": "Aucun cookie \"token\" n'est renvoyé"
         }
       ]
     }

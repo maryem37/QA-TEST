@@ -3,77 +3,55 @@
     {
       "id": "TC-010-01",
       "requirement_id": "REQ-010",
-      "title": "Connexion admin et affichage de la boîte de messages",
+      "title": "Consultation d'un message reçu par l'administrateur",
       "type": "nominal",
-      "layer": "API",
-      "priority": "Haute",
+      "layer": "UI",
+      "priority": "Moyenne",
       "preconditions": [
-        "Aucun utilisateur connecté"
+        "Un visiteur a envoyé un message via le formulaire de contact",
+        "L'administrateur possède des identifiants valides"
       ],
       "steps": [
         {
-          "action": "Envoyer une requête POST /api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"password\"}",
-          "expected": "Réponse 200 et cookie `token` présent"
+          "action": "Se connecter à l'interface admin avec le login 'admin' et le mot de passe 'password'",
+          "expected": "L'administrateur est authentifié et redirigé vers le tableau de bord"
         },
         {
-          "action": "Utiliser le cookie `token` pour accéder à l'interface UI d'administration et ouvrir la page \"Messages\"",
-          "expected": "La boîte de messages s'affiche et contient au moins le message envoyé précédemment par un visiteur"
+          "action": "Cliquer sur le menu 'Messages'",
+          "expected": "La liste des messages reçus s'affiche, incluant le message envoyé par le visiteur"
+        },
+        {
+          "action": "Sélectionner le message dans la liste",
+          "expected": "Le contenu complet du message s'affiche"
+        },
+        {
+          "action": "Cliquer sur le bouton 'Marquer comme lu'",
+          "expected": "Le statut du message passe à 'lu'"
+        },
+        {
+          "action": "Cliquer sur le bouton 'Supprimer'",
+          "expected": "Le message disparaît de la liste et un message de confirmation s'affiche"
         }
       ]
     },
     {
       "id": "TC-010-02",
       "requirement_id": "REQ-010",
-      "title": "Ouverture d'un message et marquage comme lu",
-      "type": "nominal",
+      "title": "Tentative d'accès à la boîte de messages sans authentification",
+      "type": "negative",
       "layer": "UI",
-      "priority": "Haute",
+      "priority": "Moyenne",
       "preconditions": [
-        "Admin connecté (token valide)",
-        "Un message non lu présent dans la boîte"
+        "Aucun utilisateur n'est connecté"
       ],
       "steps": [
         {
-          "action": "Cliquer sur le message non lu dans la liste",
-          "expected": "Le contenu complet du message s'affiche"
+          "action": "Accéder directement à l'URL de la boîte de messages admin (ex: /admin/messages)",
+          "expected": "L'utilisateur est redirigé vers la page de connexion"
         },
         {
-          "action": "Cliquer sur le bouton \"Marquer comme lu\"",
-          "expected": "Le statut du message passe à \"lu\" et l'icône/indicateur de non‑lu disparaît"
-        }
-      ]
-    },
-    {
-      "id": "TC-010-03",
-      "requirement_id": "REQ-010",
-      "title": "Échec de connexion avec identifiants incorrects",
-      "type": "negative",
-      "layer": "API",
-      "priority": "Moyenne",
-      "preconditions": [
-        "Aucun utilisateur connecté"
-      ],
-      "steps": [
-        {
-          "action": "Envoyer une requête POST /api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"wrongpass\"}",
-          "expected": "Réponse 401 Unauthorized, aucun cookie `token` reçu"
-        }
-      ]
-    },
-    {
-      "id": "TC-010-04",
-      "requirement_id": "REQ-010",
-      "title": "Accès à la boîte de messages sans authentification",
-      "type": "negative",
-      "layer": "UI",
-      "priority": "Moyenne",
-      "preconditions": [
-        "Aucun cookie `token` présent"
-      ],
-      "steps": [
-        {
-          "action": "Tenter d'ouvrir directement l'URL de la page \"Messages\" de l'interface admin",
-          "expected": "Redirection vers la page de connexion ou affichage d'un message d'erreur d'authentification"
+          "action": "Essayer de visualiser le contenu de la page sans se connecter",
+          "expected": "Aucun message n'est affiché et un message d'erreur d'authentification apparaît"
         }
       ]
     }

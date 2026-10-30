@@ -3,56 +3,59 @@
     {
       "id": "TC-005-01",
       "requirement_id": "REQ-005",
-      "title": "Suppression d'une chambre existante (nominal)",
+      "title": "Suppression d'une chambre existante (cas nominal)",
       "type": "nominal",
       "layer": "UI",
       "priority": "Moyenne",
       "preconditions": [
-        "Un compte administrateur existant (username: admin, password: password)",
-        "Au moins une chambre existante affichée dans la liste admin"
+        "L'administrateur est connecté (login via POST /api/auth/login)",
+        "La liste des chambres contient la chambre 101 (Single)"
       ],
       "steps": [
         {
-          "action": "Appeler POST /api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"password\"}",
-          "expected": "Réponse 200 et cookie `token` reçu"
+          "action": "Envoyer une requête POST /api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"password\"}",
+          "expected": "Réponse 200 avec un token valide dans le cookie 'token'"
         },
         {
-          "action": "Se connecter à l'interface admin avec le token obtenu",
-          "expected": "L'administrateur est authentifié et voit la liste des chambres"
+          "action": "Récupérer la liste des chambres via GET /api/room",
+          "expected": "Réponse 200 contenant la chambre 101"
         },
         {
-          "action": "Cliquer sur le bouton \"Supprimer\" de la première chambre de la liste",
-          "expected": "Une requête de suppression est envoyée et la chambre disparaît de la liste admin"
+          "action": "Dans l'interface admin, cliquer sur le bouton 'Supprimer' associé à la chambre 101",
+          "expected": "L'API répond avec un statut de succès (ex. 200) et la chambre 101 est retirée du serveur"
         },
         {
-          "action": "Naviguer vers la page d'accueil et vérifier la liste des chambres",
-          "expected": "La chambre supprimée n'apparaît plus sur la page d'accueil"
+          "action": "Récupérer à nouveau la liste des chambres via GET /api/room",
+          "expected": "Réponse 200 ne contenant plus la chambre 101"
+        },
+        {
+          "action": "Vérifier sur la page d'accueil que la chambre 101 n'apparaît plus dans la liste affichée",
+          "expected": "La chambre 101 n'est plus visible"
         }
       ]
     },
     {
       "id": "TC-005-02",
       "requirement_id": "REQ-005",
-      "title": "Tentative de suppression d'une chambre inexistante (negative)",
+      "title": "Tentative de suppression d'une chambre inexistante (cas négatif)",
       "type": "negative",
       "layer": "UI",
       "priority": "Moyenne",
       "preconditions": [
-        "Un compte administrateur existant (username: admin, password: password)",
-        "Aucune chambre avec l'identifiant 9999 n'existe"
+        "L'administrateur est connecté (login via POST /api/auth/login)"
       ],
       "steps": [
         {
-          "action": "Appeler POST /api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"password\"}",
-          "expected": "Réponse 200 et cookie `token` reçu"
+          "action": "Envoyer une requête POST /api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"password\"}",
+          "expected": "Réponse 200 avec un token valide dans le cookie 'token'"
         },
         {
-          "action": "Se connecter à l'interface admin avec le token obtenu",
-          "expected": "L'administrateur est authentifié et voit la liste des chambres"
+          "action": "Dans l'interface admin, tenter de supprimer la chambre avec l'identifiant 999 (qui n'existe pas)",
+          "expected": "L'API ne renvoie pas d'erreur serveur (pas de code 500) ; elle renvoie un code d'erreur approprié (ex. 404) ou un message d'échec"
         },
         {
-          "action": "Tenter de supprimer la chambre avec l'identifiant 9999 via l'interface (ex: URL ou bouton désactivé)",
-          "expected": "Aucun message d'erreur serveur (pas de 500); un message d'information indique que la chambre n'existe pas ou l'action est ignorée"
+          "action": "Vérifier que la liste des chambres affichée reste inchangée et qu'aucune exception n'est levée côté UI",
+          "expected": "La liste des chambres affichée ne change pas et aucun message d'erreur serveur n'apparaît"
         }
       ]
     }

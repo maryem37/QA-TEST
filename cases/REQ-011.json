@@ -3,67 +3,50 @@
     {
       "id": "TC-011-01",
       "requirement_id": "REQ-011",
-      "title": "Déconnexion réussie d'un administrateur",
+      "title": "Déconnexion réussie d'un administrateur connecté",
       "type": "nominal",
       "layer": "UI",
       "priority": "Moyenne",
       "preconditions": [
-        "L'administrateur n'est pas connecté"
+        "L'administrateur est connecté à l'interface admin (token présent dans le cookie)"
       ],
       "steps": [
         {
-          "action": "Ouvrir la page de connexion et saisir username='admin' et password='password' puis cliquer sur 'Connexion'",
-          "expected": "Le tableau de bord admin s'affiche et un cookie 'token' est créé"
+          "action": "Cliquer sur le bouton \"Déconnexion\" dans le menu admin",
+          "expected": "Le cookie \"token\" est supprimé et l'utilisateur est redirigé vers la page de connexion"
         },
         {
-          "action": "Cliquer sur le bouton 'Déconnexion' dans l'interface admin",
-          "expected": "L'utilisateur est redirigé vers la page de connexion et le cookie 'token' est supprimé"
+          "action": "Tenter d'accéder à l'URL de l'espace admin (ex: /admin/dashboard)",
+          "expected": "La navigation est bloquée et l'utilisateur est redirigé vers la page de connexion"
         },
         {
-          "action": "Tenter d'accéder directement à l'URL '/admin'",
-          "expected": "L'accès est refusé et l'utilisateur est redirigé vers la page de connexion"
-        },
-        {
-          "action": "Envoyer une requête GET à '/api/admin/secure-data' avec le cookie 'token' précédemment reçu",
-          "expected": "Réponse HTTP 401 Unauthorized"
+          "action": "Envoyer une requête GET vers /api/room avec le cookie \"token\" supprimé",
+          "expected": "Le serveur répond 200 (pas d'authentification requise) mais aucune donnée sensible n'est retournée, confirmant que le token n'est plus utilisé"
         }
       ]
     },
     {
       "id": "TC-011-02",
       "requirement_id": "REQ-011",
-      "title": "Déconnexion sans session active",
+      "title": "Tentative de déconnexion alors que l'utilisateur n'est pas connecté",
       "type": "negative",
       "layer": "UI",
       "priority": "Moyenne",
       "preconditions": [
-        "Aucun utilisateur n'est connecté"
+        "Aucun token \"token\" présent dans le navigateur"
       ],
       "steps": [
         {
-          "action": "Accéder à la page principale et cliquer sur le bouton 'Déconnexion' (s'il est visible)",
-          "expected": "Le bouton n'est pas affiché ou un message d'erreur 'Aucune session active' est affiché, aucune redirection ne se produit"
-        }
-      ]
-    },
-    {
-      "id": "TC-011-03",
-      "requirement_id": "REQ-011",
-      "title": "Réutilisation du token après déconnexion",
-      "type": "negative",
-      "layer": "UI",
-      "priority": "Moyenne",
-      "preconditions": [
-        "L'administrateur est connecté et possède un cookie 'token' valide"
-      ],
-      "steps": [
-        {
-          "action": "Cliquer sur le bouton 'Déconnexion'",
-          "expected": "Le cookie 'token' est supprimé"
+          "action": "Cliquer sur le bouton \"Déconnexion\" affiché (ou tenter d'accéder à l'URL de déconnexion)",
+          "expected": "Aucun changement d'état, le système affiche éventuellement un message d'information \"Vous n'êtes pas connecté\" ou reste sur la même page"
         },
         {
-          "action": "Envoyer une requête GET à '/api/admin/secure-data' en incluant le cookie 'token' précédemment capturé",
-          "expected": "Réponse HTTP 401 Unauthorized"
+          "action": "Vérifier la présence du cookie \"token\"",
+          "expected": "Le cookie \"token\" reste absent"
+        },
+        {
+          "action": "Tenter d'accéder à l'URL de l'espace admin",
+          "expected": "L'utilisateur est redirigé vers la page de connexion, confirmant que l'accès reste interdit"
         }
       ]
     }

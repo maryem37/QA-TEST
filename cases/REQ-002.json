@@ -3,53 +3,80 @@
     {
       "id": "TC-002-01",
       "requirement_id": "REQ-002",
-      "title": "Affichage correct de la liste des chambres après authentification réussie",
+      "title": "Vérifier la réponse API GET /api/room avec les données initiales",
       "type": "nominal",
-      "layer": "UI",
+      "layer": "API",
       "priority": "Haute",
-      "preconditions": [],
+      "preconditions": [
+        "Le serveur est démarré et la base de données contient les 3 chambres initiales"
+      ],
       "steps": [
         {
-          "action": "Ouvrir la page d'accueil du site",
-          "expected": "La page d'accueil s'affiche avec le formulaire de connexion"
+          "action": "Envoyer une requête GET http://localhost:8080/api/room",
+          "expected": "Réponse HTTP 200 avec un corps JSON contenant la clé \"rooms\" contenant exactement 3 objets"
         },
         {
-          "action": "Envoyer une requête POST /api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"password\"}",
-          "expected": "Réponse HTTP 200 et cookie `token` reçu"
+          "action": "Vérifier que chaque objet possède les champs roomid, roomName, type, roomPrice, accessible, description, features, image",
+          "expected": "Tous les champs sont présents pour les 3 chambres"
         },
         {
-          "action": "Vérifier l'affichage de la liste des chambres",
-          "expected": "Chaque chambre affiche son type, son prix et un bouton \"Réserver\""
+          "action": "Vérifier que les valeurs correspondent aux données initiales (101 Single 100, 102 Double 150, 103 Suite 225)",
+          "expected": "roomid=101, type=\"Single\", roomPrice=100 ; roomid=102, type=\"Double\", roomPrice=150 ; roomid=103, type=\"Suite\", roomPrice=225"
         }
       ]
     },
     {
       "id": "TC-002-02",
       "requirement_id": "REQ-002",
-      "title": "Échec de l'affichage de la liste des chambres avec authentification échouée",
-      "type": "negative",
-      "layer": "API",
+      "title": "Affichage de la liste des chambres sur la page d'accueil",
+      "type": "nominal",
+      "layer": "UI",
       "priority": "Haute",
-      "preconditions": [],
+      "preconditions": [
+        "Le serveur API est accessible et renvoie la réponse correcte du point GET /api/room",
+        "L'utilisateur ouvre la page d'accueil du site"
+      ],
       "steps": [
         {
-          "action": "Envoyer une requête POST /api/auth/login avec des identifiants invalides (ex: {\"username\":\"admin\",\"password\":\"wrong\"})",
-          "expected": "Réponse HTTP 401 Unauthorized, aucun cookie `token`"
+          "action": "L'utilisateur charge la page d'accueil du site web",
+          "expected": "Le front‑end effectue une requête GET /api/room et reçoit la réponse 200 avec les 3 chambres"
+        },
+        {
+          "action": "Le UI parcourt la collection \"rooms\" et crée un bloc pour chaque chambre",
+          "expected": "Trois blocs de chambre sont affichés"
+        },
+        {
+          "action": "Pour chaque bloc, vérifier la présence du type et du prix",
+          "expected": "Le texte du type (\"Single\", \"Double\", \"Suite\") et le prix (100, 150, 225) sont visibles"
+        },
+        {
+          "action": "Vérifier la présence d'un bouton \"Réserver\" dans chaque bloc",
+          "expected": "Chaque bloc contient un bouton cliquable libellé \"Réserver\""
         }
       ]
     },
     {
       "id": "TC-002-03",
       "requirement_id": "REQ-002",
-      "title": "Absence de la liste des chambres lorsqu'aucune authentification n'est fournie",
+      "title": "Gestion d'une erreur serveur lors de la récupération des chambres",
       "type": "negative",
-      "layer": "UI",
+      "layer": "API",
       "priority": "Haute",
-      "preconditions": [],
+      "preconditions": [
+        "Le serveur API est configuré pour renvoyer une erreur 500 sur le point GET /api/room"
+      ],
       "steps": [
         {
-          "action": "Ouvrir la page d'accueil du site sans se connecter",
-          "expected": "Le site indique que l'utilisateur doit se connecter et aucune chambre n'est affichée"
+          "action": "Envoyer une requête GET http://localhost:8080/api/room",
+          "expected": "Réponse HTTP 500"
+        },
+        {
+          "action": "Vérifier que le corps de la réponse ne contient pas la clé \"rooms\"",
+          "expected": "Le corps ne contient pas de liste de chambres"
+        },
+        {
+          "action": "(Optionnel UI) Lancer la page d'accueil et observer le comportement du front‑end",
+          "expected": "Le UI affiche un message d'erreur indiquant que la liste des chambres est indisponible"
         }
       ]
     }
