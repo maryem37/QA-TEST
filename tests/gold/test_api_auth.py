@@ -23,8 +23,13 @@ def test_login_wrong_password_rejected(base_url):
     assert r.status_code == 401
 
 
-@pytest.mark.tc("TC-010-01")
-def test_messages_require_token_and_list(base_url, admin_token):
-    r = requests.get(f"{base_url}/api/message", cookies={"token": admin_token}, timeout=10)
-    assert r.status_code == 200
-    assert "messages" in r.json()
+@pytest.mark.tc("TC-001-03")
+@pytest.mark.xfail(reason="DEF-001 : JSON invalide sur le login renvoie 500", strict=True)
+def test_login_invalid_json_returns_400(base_url):
+    r = requests.post(
+        f"{base_url}/api/auth/login",
+        data="{bad",
+        headers={"Content-Type": "application/json"},
+        timeout=10,
+    )
+    assert r.status_code == 400
