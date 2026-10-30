@@ -1,0 +1,71 @@
+{
+  "cases": [
+    {
+      "id": "TC-011-01",
+      "requirement_id": "REQ-011",
+      "title": "Déconnexion réussie d'un administrateur",
+      "type": "nominal",
+      "layer": "UI",
+      "priority": "Moyenne",
+      "preconditions": [
+        "L'administrateur n'est pas connecté"
+      ],
+      "steps": [
+        {
+          "action": "Ouvrir la page de connexion et saisir username='admin' et password='password' puis cliquer sur 'Connexion'",
+          "expected": "Le tableau de bord admin s'affiche et un cookie 'token' est créé"
+        },
+        {
+          "action": "Cliquer sur le bouton 'Déconnexion' dans l'interface admin",
+          "expected": "L'utilisateur est redirigé vers la page de connexion et le cookie 'token' est supprimé"
+        },
+        {
+          "action": "Tenter d'accéder directement à l'URL '/admin'",
+          "expected": "L'accès est refusé et l'utilisateur est redirigé vers la page de connexion"
+        },
+        {
+          "action": "Envoyer une requête GET à '/api/admin/secure-data' avec le cookie 'token' précédemment reçu",
+          "expected": "Réponse HTTP 401 Unauthorized"
+        }
+      ]
+    },
+    {
+      "id": "TC-011-02",
+      "requirement_id": "REQ-011",
+      "title": "Déconnexion sans session active",
+      "type": "negative",
+      "layer": "UI",
+      "priority": "Moyenne",
+      "preconditions": [
+        "Aucun utilisateur n'est connecté"
+      ],
+      "steps": [
+        {
+          "action": "Accéder à la page principale et cliquer sur le bouton 'Déconnexion' (s'il est visible)",
+          "expected": "Le bouton n'est pas affiché ou un message d'erreur 'Aucune session active' est affiché, aucune redirection ne se produit"
+        }
+      ]
+    },
+    {
+      "id": "TC-011-03",
+      "requirement_id": "REQ-011",
+      "title": "Réutilisation du token après déconnexion",
+      "type": "negative",
+      "layer": "UI",
+      "priority": "Moyenne",
+      "preconditions": [
+        "L'administrateur est connecté et possède un cookie 'token' valide"
+      ],
+      "steps": [
+        {
+          "action": "Cliquer sur le bouton 'Déconnexion'",
+          "expected": "Le cookie 'token' est supprimé"
+        },
+        {
+          "action": "Envoyer une requête GET à '/api/admin/secure-data' en incluant le cookie 'token' précédemment capturé",
+          "expected": "Réponse HTTP 401 Unauthorized"
+        }
+      ]
+    }
+  ]
+}

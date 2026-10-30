@@ -1,0 +1,70 @@
+{
+  "cases": [
+    {
+      "id": "TC-006-01",
+      "requirement_id": "REQ-006",
+      "title": "Réservation valide avec toutes les informations correctes",
+      "type": "nominal",
+      "layer": "UI",
+      "priority": "Haute",
+      "preconditions": [
+        "L'utilisateur admin existe avec login/password valides",
+        "Le visiteur n'est pas connecté",
+        "Des chambres sont disponibles aux dates 2023-12-01 à 2023-12-05"
+      ],
+      "steps": [
+        {
+          "action": "Envoyer une requête POST /api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"password\"}",
+          "expected": "Réponse 200 et cookie `token` reçu"
+        },
+        {
+          "action": "Ouvrir la page de réservation du site (UI)",
+          "expected": "Le formulaire de réservation est affiché"
+        },
+        {
+          "action": "Saisir prénom, nom, email valide, téléphone et les dates d'arrivée 2023-12-01 et de départ 2023-12-05 puis valider le formulaire",
+          "expected": "Les champs sont acceptés sans erreur"
+        },
+        {
+          "action": "Cliquer sur le bouton \"Réserver\"",
+          "expected": "Message de confirmation \"Réservation confirmée\" affiché"
+        },
+        {
+          "action": "Accéder au calendrier admin (UI)",
+          "expected": "La réservation apparaît dans le calendrier aux dates 2023-12-01 à 2023-12-05"
+        }
+      ]
+    },
+    {
+      "id": "TC-006-02",
+      "requirement_id": "REQ-006",
+      "title": "Échec de réservation lorsque la date de départ est antérieure à la date d'arrivée",
+      "type": "negative",
+      "layer": "UI",
+      "priority": "Haute",
+      "preconditions": [
+        "L'utilisateur admin existe avec login/password valides",
+        "Le visiteur n'est pas connecté",
+        "Des chambres sont disponibles aux dates testées"
+      ],
+      "steps": [
+        {
+          "action": "Envoyer une requête POST /api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"password\"}",
+          "expected": "Réponse 200 et cookie `token` reçu"
+        },
+        {
+          "action": "Ouvrir la page de réservation du site (UI)",
+          "expected": "Le formulaire de réservation est affiché"
+        },
+        {
+          "action": "Saisir prénom, nom, email valide, téléphone et les dates d'arrivée 2023-12-05 et de départ 2023-12-01",
+          "expected": "Le champ de date de départ indique une erreur \"La date de départ doit être postérieure à la date d'arrivée\""
+        },
+        {
+          "action": "Cliquer sur le bouton \"Réserver\"",
+          "expected": "Aucune réservation n'est créée et un message d'erreur est affiché"
+        }
+      ]
+    }
+  ]
+}

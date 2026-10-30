@@ -1,0 +1,78 @@
+{
+  "cases": [
+    {
+      "id": "TC-008-01",
+      "requirement_id": "REQ-008",
+      "title": "Envoi de message de contact avec toutes les informations valides",
+      "type": "nominal",
+      "layer": "UI",
+      "priority": "Haute",
+      "preconditions": [
+        "L'utilisateur accède à la page de contact du site"
+      ],
+      "steps": [
+        {
+          "action": "Saisir \"Jean Dupont\" dans le champ Nom",
+          "expected": "Le champ Nom contient \"Jean Dupont\""
+        },
+        {
+          "action": "Saisir \"jean.dupont@example.com\" dans le champ Email",
+          "expected": "Le champ Email contient \"jean.dupont@example.com\""
+        },
+        {
+          "action": "Saisir \"0123456789\" dans le champ Téléphone",
+          "expected": "Le champ Téléphone contient \"0123456789\""
+        },
+        {
+          "action": "Saisir \"Demande d'information\" dans le champ Sujet",
+          "expected": "Le champ Sujet contient \"Demande d'information\""
+        },
+        {
+          "action": "Saisir \"Bonjour, je souhaite en savoir plus sur vos services.\" dans le champ Message",
+          "expected": "Le champ Message contient le texte saisi"
+        },
+        {
+          "action": "Cliquer sur le bouton \"Envoyer\"",
+          "expected": "Le formulaire est soumis et une confirmation \"Votre message a été envoyé avec succès\" s'affiche"
+        }
+      ]
+    },
+    {
+      "id": "TC-008-02",
+      "requirement_id": "REQ-008",
+      "title": "Échec d'envoi avec email invalide",
+      "type": "negative",
+      "layer": "UI",
+      "priority": "Haute",
+      "preconditions": [
+        "L'utilisateur accède à la page de contact du site"
+      ],
+      "steps": [
+        {
+          "action": "Saisir \"Marie Curie\" dans le champ Nom",
+          "expected": "Le champ Nom contient \"Marie Curie\""
+        },
+        {
+          "action": "Saisir \"marie.curie@invalid\" dans le champ Email",
+          "expected": "Le champ Email contient \"marie.curie@invalid\""
+        },
+        {
+          "action": "Saisir \"0987654321\" dans le champ Téléphone",
+          "expected": "Le champ Téléphone contient \"0987654321\""
+        },
+        {
+          "action": "Saisir \"Problème de facturation\" dans le champ Sujet",
+          "expected": "Le champ Sujet contient \"Problème de facturation\""
+        },
+        {
+          "action": "Saisir \"J'ai un problème avec ma facture du mois dernier.\" dans le champ Message",
+          "expected": "Le champ Message contient le texte saisi"
+        },
+        {
+          "action": "Cliquer sur le bouton \"Envoyer\"",
+          "expected": "Un message d'erreur \"Veuillez saisir une adresse email valide\" s'affiche et le formulaire n'est pas soumis"
+        }
+      ]
+    }
+  ]
+}

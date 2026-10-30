@@ -1,0 +1,60 @@
+{
+  "cases": [
+    {
+      "id": "TC-005-01",
+      "requirement_id": "REQ-005",
+      "title": "Suppression d'une chambre existante (nominal)",
+      "type": "nominal",
+      "layer": "UI",
+      "priority": "Moyenne",
+      "preconditions": [
+        "Un compte administrateur existant (username: admin, password: password)",
+        "Au moins une chambre existante affichée dans la liste admin"
+      ],
+      "steps": [
+        {
+          "action": "Appeler POST /api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"password\"}",
+          "expected": "Réponse 200 et cookie `token` reçu"
+        },
+        {
+          "action": "Se connecter à l'interface admin avec le token obtenu",
+          "expected": "L'administrateur est authentifié et voit la liste des chambres"
+        },
+        {
+          "action": "Cliquer sur le bouton \"Supprimer\" de la première chambre de la liste",
+          "expected": "Une requête de suppression est envoyée et la chambre disparaît de la liste admin"
+        },
+        {
+          "action": "Naviguer vers la page d'accueil et vérifier la liste des chambres",
+          "expected": "La chambre supprimée n'apparaît plus sur la page d'accueil"
+        }
+      ]
+    },
+    {
+      "id": "TC-005-02",
+      "requirement_id": "REQ-005",
+      "title": "Tentative de suppression d'une chambre inexistante (negative)",
+      "type": "negative",
+      "layer": "UI",
+      "priority": "Moyenne",
+      "preconditions": [
+        "Un compte administrateur existant (username: admin, password: password)",
+        "Aucune chambre avec l'identifiant 9999 n'existe"
+      ],
+      "steps": [
+        {
+          "action": "Appeler POST /api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"password\"}",
+          "expected": "Réponse 200 et cookie `token` reçu"
+        },
+        {
+          "action": "Se connecter à l'interface admin avec le token obtenu",
+          "expected": "L'administrateur est authentifié et voit la liste des chambres"
+        },
+        {
+          "action": "Tenter de supprimer la chambre avec l'identifiant 9999 via l'interface (ex: URL ou bouton désactivé)",
+          "expected": "Aucun message d'erreur serveur (pas de 500); un message d'information indique que la chambre n'existe pas ou l'action est ignorée"
+        }
+      ]
+    }
+  ]
+}

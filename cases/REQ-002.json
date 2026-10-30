@@ -1,0 +1,57 @@
+{
+  "cases": [
+    {
+      "id": "TC-002-01",
+      "requirement_id": "REQ-002",
+      "title": "Affichage correct de la liste des chambres après authentification réussie",
+      "type": "nominal",
+      "layer": "UI",
+      "priority": "Haute",
+      "preconditions": [],
+      "steps": [
+        {
+          "action": "Ouvrir la page d'accueil du site",
+          "expected": "La page d'accueil s'affiche avec le formulaire de connexion"
+        },
+        {
+          "action": "Envoyer une requête POST /api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"password\"}",
+          "expected": "Réponse HTTP 200 et cookie `token` reçu"
+        },
+        {
+          "action": "Vérifier l'affichage de la liste des chambres",
+          "expected": "Chaque chambre affiche son type, son prix et un bouton \"Réserver\""
+        }
+      ]
+    },
+    {
+      "id": "TC-002-02",
+      "requirement_id": "REQ-002",
+      "title": "Échec de l'affichage de la liste des chambres avec authentification échouée",
+      "type": "negative",
+      "layer": "API",
+      "priority": "Haute",
+      "preconditions": [],
+      "steps": [
+        {
+          "action": "Envoyer une requête POST /api/auth/login avec des identifiants invalides (ex: {\"username\":\"admin\",\"password\":\"wrong\"})",
+          "expected": "Réponse HTTP 401 Unauthorized, aucun cookie `token`"
+        }
+      ]
+    },
+    {
+      "id": "TC-002-03",
+      "requirement_id": "REQ-002",
+      "title": "Absence de la liste des chambres lorsqu'aucune authentification n'est fournie",
+      "type": "negative",
+      "layer": "UI",
+      "priority": "Haute",
+      "preconditions": [],
+      "steps": [
+        {
+          "action": "Ouvrir la page d'accueil du site sans se connecter",
+          "expected": "Le site indique que l'utilisateur doit se connecter et aucune chambre n'est affichée"
+        }
+      ]
+    }
+  ]
+}

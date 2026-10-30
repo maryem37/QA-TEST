@@ -1,0 +1,70 @@
+{
+  "cases": [
+    {
+      "id": "TC-004-01",
+      "requirement_id": "REQ-004",
+      "title": "Modification nominal du prix et du type d'une chambre",
+      "type": "nominal",
+      "layer": "UI",
+      "priority": "Moyenne",
+      "preconditions": [
+        "L'administrateur est connecté à l'application"
+      ],
+      "steps": [
+        {
+          "action": "Naviguer vers la page d'accueil et cliquer sur le bouton 'Gestion des chambres'",
+          "expected": "La liste des chambres s'affiche"
+        },
+        {
+          "action": "Sélectionner une chambre existante et cliquer sur 'Modifier'",
+          "expected": "Le formulaire de modification de la chambre s'affiche avec les valeurs actuelles"
+        },
+        {
+          "action": "Modifier le champ 'Prix' avec une valeur valide (ex: 120) et le champ 'Type' avec une valeur valide (ex: 'Suite')",
+          "expected": "Les champs affichent les nouvelles valeurs saisies"
+        },
+        {
+          "action": "Cliquer sur le bouton 'Enregistrer'",
+          "expected": "Un message de succès s'affiche et l'utilisateur est redirigé vers la page d'accueil"
+        },
+        {
+          "action": "Vérifier sur la page d'accueil que le prix et le type de la chambre modifiée sont mis à jour",
+          "expected": "Le prix et le type affichés correspondent aux nouvelles valeurs"
+        }
+      ]
+    },
+    {
+      "id": "TC-004-02",
+      "requirement_id": "REQ-004",
+      "title": "Rejet de la modification avec des données invalides",
+      "type": "negative",
+      "layer": "UI",
+      "priority": "Moyenne",
+      "preconditions": [
+        "L'administrateur est connecté à l'application"
+      ],
+      "steps": [
+        {
+          "action": "Naviguer vers la page d'accueil et accéder à la section 'Gestion des chambres'",
+          "expected": "La liste des chambres s'affiche"
+        },
+        {
+          "action": "Choisir une chambre et cliquer sur 'Modifier'",
+          "expected": "Le formulaire de modification s'ouvre"
+        },
+        {
+          "action": "Saisir un prix négatif (-50) ou laisser le champ 'Type' vide",
+          "expected": "Les champs affichent les valeurs saisies (invalides)"
+        },
+        {
+          "action": "Cliquer sur le bouton 'Enregistrer'",
+          "expected": "Un message d'erreur s'affiche indiquant les données invalides et la modification n'est pas enregistrée"
+        },
+        {
+          "action": "Retourner à la page d'accueil et vérifier que les informations de la chambre restent inchangées",
+          "expected": "Le prix et le type de la chambre conservent leurs valeurs précédentes"
+        }
+      ]
+    }
+  ]
+}

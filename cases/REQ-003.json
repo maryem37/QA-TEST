@@ -1,0 +1,90 @@
+{
+  "cases": [
+    {
+      "id": "TC-003-01",
+      "requirement_id": "REQ-003",
+      "title": "Création d'une chambre avec des données valides (UI)",
+      "type": "nominal",
+      "layer": "UI",
+      "priority": "Haute",
+      "preconditions": [
+        "L'administrateur est connecté à l'application."
+      ],
+      "steps": [
+        {
+          "action": "Accéder à la page de création de chambre.",
+          "expected": "Le formulaire de création s'affiche."
+        },
+        {
+          "action": "Saisir le numéro '101', le type 'Double', le prix '120', l'accessibilité 'Oui' et soumettre le formulaire.",
+          "expected": "Un message de succès s'affiche et la chambre est enregistrée."
+        },
+        {
+          "action": "Naviguer vers la liste des chambres admin.",
+          "expected": "La chambre 101 apparaît dans la liste."
+        },
+        {
+          "action": "Aller sur la page d'accueil.",
+          "expected": "La chambre 101 est visible dans la liste publique."
+        }
+      ]
+    },
+    {
+      "id": "TC-003-02",
+      "requirement_id": "REQ-003",
+      "title": "Création d'une chambre avec numéro vide (UI)",
+      "type": "negative",
+      "layer": "UI",
+      "priority": "Haute",
+      "preconditions": [
+        "L'administrateur est connecté."
+      ],
+      "steps": [
+        {
+          "action": "Accéder au formulaire de création de chambre.",
+          "expected": "Formulaire affiché."
+        },
+        {
+          "action": "Laisser le champ numéro vide, remplir les autres champs valides et soumettre.",
+          "expected": "Un message d'erreur 'Le numéro de chambre est requis' s'affiche et la chambre n'est pas créée."
+        }
+      ]
+    },
+    {
+      "id": "TC-003-03",
+      "requirement_id": "REQ-003",
+      "title": "Création d'une chambre avec prix invalide (UI)",
+      "type": "negative",
+      "layer": "UI",
+      "priority": "Haute",
+      "preconditions": [
+        "L'administrateur est connecté."
+      ],
+      "steps": [
+        {
+          "action": "Ouvrir le formulaire de création de chambre.",
+          "expected": "Formulaire affiché."
+        },
+        {
+          "action": "Saisir le numéro '102', le type 'Simple', le prix '-50', l'accessibilité 'Oui' et soumettre.",
+          "expected": "Un message d'erreur 'Le prix doit être positif' s'affiche et la chambre n'est pas créée."
+        }
+      ]
+    },
+    {
+      "id": "TC-003-04",
+      "requirement_id": "REQ-003",
+      "title": "Authentification réussie de l'administrateur (API)",
+      "type": "nominal",
+      "layer": "API",
+      "priority": "Haute",
+      "preconditions": [],
+      "steps": [
+        {
+          "action": "Envoyer une requête POST /api/auth/login avec le corps {\"username\": \"admin\", \"password\": \"password\"}.",
+          "expected": "Réponse 200 et le cookie `token` est présent."
+        }
+      ]
+    }
+  ]
+}

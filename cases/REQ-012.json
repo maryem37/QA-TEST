@@ -1,0 +1,49 @@
+{
+  "cases": [
+    {
+      "id": "TC-012-01",
+      "requirement_id": "REQ-012",
+      "title": "Connexion réussie avec des identifiants valides",
+      "type": "nominal",
+      "layer": "API",
+      "priority": "Haute",
+      "preconditions": [],
+      "steps": [
+        {
+          "action": "POST /api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"password\"}",
+          "expected": "Réponse 200 et cookie `token` présent"
+        }
+      ]
+    },
+    {
+      "id": "TC-012-02",
+      "requirement_id": "REQ-012",
+      "title": "Échec de connexion avec des identifiants invalides",
+      "type": "negative",
+      "layer": "API",
+      "priority": "Haute",
+      "preconditions": [],
+      "steps": [
+        {
+          "action": "POST /api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"mauvais\"}",
+          "expected": "Réponse 401 Unauthorized"
+        }
+      ]
+    },
+    {
+      "id": "TC-012-03",
+      "requirement_id": "REQ-012",
+      "title": "Accès à une ressource protégée sans jeton",
+      "type": "negative",
+      "layer": "API",
+      "priority": "Haute",
+      "preconditions": [],
+      "steps": [
+        {
+          "action": "GET /api/messages sans inclure le cookie `token`",
+          "expected": "Réponse 401 ou 403 Unauthorized"
+        }
+      ]
+    }
+  ]
+}

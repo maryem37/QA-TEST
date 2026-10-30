@@ -1,0 +1,81 @@
+{
+  "cases": [
+    {
+      "id": "TC-010-01",
+      "requirement_id": "REQ-010",
+      "title": "Connexion admin et affichage de la boîte de messages",
+      "type": "nominal",
+      "layer": "API",
+      "priority": "Haute",
+      "preconditions": [
+        "Aucun utilisateur connecté"
+      ],
+      "steps": [
+        {
+          "action": "Envoyer une requête POST /api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"password\"}",
+          "expected": "Réponse 200 et cookie `token` présent"
+        },
+        {
+          "action": "Utiliser le cookie `token` pour accéder à l'interface UI d'administration et ouvrir la page \"Messages\"",
+          "expected": "La boîte de messages s'affiche et contient au moins le message envoyé précédemment par un visiteur"
+        }
+      ]
+    },
+    {
+      "id": "TC-010-02",
+      "requirement_id": "REQ-010",
+      "title": "Ouverture d'un message et marquage comme lu",
+      "type": "nominal",
+      "layer": "UI",
+      "priority": "Haute",
+      "preconditions": [
+        "Admin connecté (token valide)",
+        "Un message non lu présent dans la boîte"
+      ],
+      "steps": [
+        {
+          "action": "Cliquer sur le message non lu dans la liste",
+          "expected": "Le contenu complet du message s'affiche"
+        },
+        {
+          "action": "Cliquer sur le bouton \"Marquer comme lu\"",
+          "expected": "Le statut du message passe à \"lu\" et l'icône/indicateur de non‑lu disparaît"
+        }
+      ]
+    },
+    {
+      "id": "TC-010-03",
+      "requirement_id": "REQ-010",
+      "title": "Échec de connexion avec identifiants incorrects",
+      "type": "negative",
+      "layer": "API",
+      "priority": "Moyenne",
+      "preconditions": [
+        "Aucun utilisateur connecté"
+      ],
+      "steps": [
+        {
+          "action": "Envoyer une requête POST /api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"wrongpass\"}",
+          "expected": "Réponse 401 Unauthorized, aucun cookie `token` reçu"
+        }
+      ]
+    },
+    {
+      "id": "TC-010-04",
+      "requirement_id": "REQ-010",
+      "title": "Accès à la boîte de messages sans authentification",
+      "type": "negative",
+      "layer": "UI",
+      "priority": "Moyenne",
+      "preconditions": [
+        "Aucun cookie `token` présent"
+      ],
+      "steps": [
+        {
+          "action": "Tenter d'ouvrir directement l'URL de la page \"Messages\" de l'interface admin",
+          "expected": "Redirection vers la page de connexion ou affichage d'un message d'erreur d'authentification"
+        }
+      ]
+    }
+  ]
+}
