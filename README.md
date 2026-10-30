@@ -1,218 +1,244 @@
-(qa-test) PS D:\QA\QA-TEST> make run-all
-uv run pytest tests/gold tests/api
-======================================================================== test session starts ========================================================================
-platform win32 -- Python 3.11.0, pytest-9.2.0, pluggy-1.7.0
-rootdir: D:\QA\QA-TEST
-configfile: pyproject.toml
-plugins: anyio-4.15.1, playwright-0.10.0
-collected 23 items                                                                                                                                                   
+# QA-TEST — Pipeline QA assisté par IA
 
-tests\gold\test_api_auth.py ..x                                                                                                                                [ 13%]
-tests\gold\test_api_create_room.py ..x                                                                                                                         [ 26%]
-tests\gold\test_api_messages.py .xx                                                                                                                            [ 39%]
-tests\gold\test_api_rooms.py .                                                                                                                                 [ 43%]
-tests\api\test_tc_001_01.py .                                                                                                                                  [ 47%]
-tests\api\test_tc_001_02.py .                                                                                                                                  [ 52%]
-tests\api\test_tc_001_03.py .                                                                                                                                  [ 56%]
-tests\api\test_tc_002_01.py F                                                                                                                                  [ 60%]
-tests\api\test_tc_002_03.py .                                                                                                                                  [ 65%]
-tests\api\test_tc_006_03.py .                                                                                                                                  [ 69%]
-tests\api\test_tc_010_01.py .                                                                                                                                  [ 73%]
-tests\api\test_tc_010_02.py x                                                                                                                                  [ 78%]
-tests\api\test_tc_010_03.py x                                                                                                                                  [ 82%]
-tests\api\test_tc_010_04.py .                                                                                                                                  [ 86%]
-tests\api\test_tc_012_01.py .                                                                                                                                  [ 91%]
-tests\api\test_tc_012_02.py x                                                                                                                                  [ 95%]
-tests\api\test_tc_012_03.py x                                                                                                                                  [100%]
+Pipeline de test logiciel de bout en bout, appliqué à
+[restful-booker-platform](https://github.com/mwinteringham/restful-booker-platform)
+(application de réservation de chambres, composée de plusieurs services).
 
-============================================================================= FAILURES ==============================================================================
-____________________________________________________ test_get_room_list_returns_three_rooms_with_required_fields ____________________________________________________
+Un LLM génère les **cas de test** à partir d'exigences écrites à la main, puis le
+**code des tests automatisés**. Les résultats sont exportés vers Jira/Xray, exécutés
+en CI avec GitHub Actions et résumés dans un rapport. **Un humain valide chaque
+contenu généré par l'IA** (Pull Request) avant son exécution.
 
-base_url = 'http://localhost:8080'
+> **État du projet** : phase 0 (préparation) en cours. Les phases suivantes sont
+> décrites dans la [feuille de route](#feuille-de-route).
 
-    @pytest.mark.tc("TC-002-01")
-    def test_get_room_list_returns_three_rooms_with_required_fields(base_url):
-        r = requests.get(f"{base_url}/api/room", timeout=10)
-        assert r.status_code == 200
-        data = r.json()
-        assert "rooms" in data
-        rooms = data["rooms"]
-        assert isinstance(rooms, list)
->       assert len(rooms) == 3
-E       AssertionError: assert 5 == 3
-E        +  where 5 = len([{'accessible': True, 'description': 'Aenean porttitor mauris sit amet lacinia molestie. In posuere accumsan aliquet. ...a description for this room', 'features': ['WiFi'], 'image': 'https://www.mwtestconsultancy.co.uk/img/room1.jpg', ...}])
+---
 
-tests\api\test_tc_002_01.py:13: AssertionError
-====================================================================== short test summary info ======================================================================
-FAILED tests/api/test_tc_002_01.py::test_get_room_list_returns_three_rooms_with_required_fields - AssertionError: assert 5 == 3
-============================================================== 1 failed, 14 passed, 8 xfailed in 1.51s ==============================================================
-make: *** [run-all] Error 1
-(qa-test) PS D:\QA\QA-TEST> Select-String -Path cases\REQ-002.json -Pattern "TC-002-01" -Context 0,25
+## Sommaire
 
-> cases\REQ-002.json:4:      "id": "TC-002-01",
-  cases\REQ-002.json:5:      "requirement_id": "REQ-002",
-  cases\REQ-002.json:6:      "title": "Récupérer la liste des chambres via l'API",
-  cases\REQ-002.json:7:      "type": "nominal",
-  cases\REQ-002.json:8:      "layer": "API",
-  cases\REQ-002.json:9:      "priority": "Haute",
-  cases\REQ-002.json:10:      "preconditions": [
-  cases\REQ-002.json:11:        "Le serveur API est démarré et accessible à http://localhost:8080"
-  cases\REQ-002.json:12:      ],
-  cases\REQ-002.json:13:      "steps": [
-  cases\REQ-002.json:14:        {
-  cases\REQ-002.json:15:          "action": "Envoyer une requête GET http://localhost:8080/api/room",
-  cases\REQ-002.json:16:          "expected": "Réponse HTTP 200 avec un corps JSON contenant la clé \"rooms\" et exactement 3 objets"
-  cases\REQ-002.json:17:        },
-  cases\REQ-002.json:18:        {
-  cases\REQ-002.json:19:          "action": "Vérifier que chaque objet possède les champs \"type\" (String) et \"roomPrice\" (int)",
-  cases\REQ-002.json:20:          "expected": "Tous les objets retournés contiennent bien les champs \"type\" et \"roomPrice\" avec des valeurs non nulles"
-  cases\REQ-002.json:21:        }
-  cases\REQ-002.json:22:      ]
-  cases\REQ-002.json:23:    },
-  cases\REQ-002.json:24:    {
-  cases\REQ-002.json:25:      "id": "TC-002-02",
-  cases\REQ-002.json:26:      "requirement_id": "REQ-002",
-  cases\REQ-002.json:27:      "title": "Affichage de la liste des chambres sur la page d'accueil",
-  cases\REQ-002.json:28:      "type": "nominal",
-  cases\REQ-002.json:29:      "layer": "UI",
+1. [Principe](#principe)
+2. [Architecture](#architecture)
+3. [Prérequis](#prérequis)
+4. [Démarrage rapide](#démarrage-rapide)
+5. [Configuration](#configuration)
+6. [Commandes Make](#commandes-make)
+7. [Structure du dépôt](#structure-du-dépôt)
+8. [Application sous test](#application-sous-test)
+9. [Conventions](#conventions)
+10. [Feuille de route](#feuille-de-route)
+11. [Limites et risques](#limites-et-risques)
 
+---
 
-(qa-test) PS D:\QA\QA-TEST>   Select-String -Path pyproject.toml -Pattern "pytest.ini_options"
+## Principe
 
-pyproject.toml:16:[tool.pytest.ini_options]
+```
+requirements/REQ-xxx.md ──► LLM ──► cases/*.json ──► revue humaine (PR)
+                                          │
+                                          ├──► export Jira / Xray (ou FileBackend)
+                                          │
+                                          └──► LLM ──► tests/ (API, Playwright, Selenium)
+                                                          │
+                                                   GitHub Actions
+                                                          │
+                                       JUnit XML ──► report.md / report.html
+```
 
+Règles de conception :
 
-(qa-test) PS D:\QA\QA-TEST>   Get-ChildItem tests -Recurse -Filter *.py | Select-Object FullName
+- Les **exigences** sont écrites à la main, d'après le comportement attendu.
+- Le LLM est utilisé de façon **reproductible** : `temperature=0`, modèle épinglé,
+  cache par hash, retry avec backoff, log JSONL (tokens, coût, durée, version du prompt).
+- Toute sortie du LLM est **validée par Pydantic** (boucle de réparation limitée à 3 essais).
+- Le LLM **ne calcule jamais de chiffres** : les métriques du rapport sont calculées par le code.
+- Aucun secret dans Git (`.env` ignoré, GitHub Secrets en CI).
 
-FullName                                        
---------                                        
-D:\QA\QA-TEST\tests\conftest.py                 
-D:\QA\QA-TEST\tests\test_smoke.py               
-D:\QA\QA-TEST\tests\api\test_tc_001_01.py       
-D:\QA\QA-TEST\tests\api\test_tc_001_02.py       
-D:\QA\QA-TEST\tests\api\test_tc_001_03.py       
-D:\QA\QA-TEST\tests\api\test_tc_002_01.py       
-D:\QA\QA-TEST\tests\api\test_tc_002_03.py       
-D:\QA\QA-TEST\tests\api\test_tc_006_03.py       
-D:\QA\QA-TEST\tests\api\test_tc_010_01.py       
-D:\QA\QA-TEST\tests\api\test_tc_010_02.py       
-D:\QA\QA-TEST\tests\api\test_tc_010_03.py       
-D:\QA\QA-TEST\tests\api\test_tc_010_04.py       
-D:\QA\QA-TEST\tests\api\test_tc_012_01.py       
-D:\QA\QA-TEST\tests\api\test_tc_012_02.py       
-D:\QA\QA-TEST\tests\api\test_tc_012_03.py       
-D:\QA\QA-TEST\tests\gold\test_api_auth.py       
-D:\QA\QA-TEST\tests\gold\test_api_create_room.py
-D:\QA\QA-TEST\tests\gold\test_api_messages.py   
-D:\QA\QA-TEST\tests\gold\test_api_rooms.py      
+## Architecture
 
+| Domaine | Outils |
+|---|---|
+| Environnement | Git/GitHub, Python 3.11, uv, Docker, Docker Compose, Make, VS Code |
+| IA | API LLM (Anthropic), Pydantic, `llm_client.py` |
+| Application sous test | restful-booker-platform (sous-module Git) |
+| Gestion de tests | Jira Cloud, Xray (avec `FileBackend` de secours) |
+| Tests | pytest, requests, Playwright, Selenium, ruff |
+| CI | GitHub Actions, GitHub Secrets, actions/cache, artefacts |
+| Rapport | JUnit XML, `report.py`, `$GITHUB_STEP_SUMMARY`, HTML |
+| Bonus | OpenTelemetry + Jaeger, LLM-as-judge |
 
-(qa-test) PS D:\QA\QA-TEST> Get-Content pyproject.toml -Encoding UTF8 | Select-Object -Skip 14 -First 12
-]
-[tool.pytest.ini_options]
-markers = ["tc(id): identifiant du cas de test (traçabilité)"]
-testpaths = ["tests"]
+## Prérequis
 
-[tool.ruff]
-line-length = 100
+- [Git](https://git-scm.com/) (Git for Windows inclut le Credential Manager)
+- [Python 3.11](https://www.python.org/) et [uv](https://docs.astral.sh/uv/)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (démarré, avec au moins 8 Go de RAM conseillés)
+- [Make](https://www.gnu.org/software/make/) (GnuWin32 3.81 suffit sous Windows)
+- Une clé API LLM (Anthropic)
+- Optionnel (phase 3) : un compte Jira Cloud avec Xray
 
-[dependency-groups]
-dev = [
-    "mypy>=2.4.1",
-    "ruff>=0.17.3",
-(qa-test) PS D:\QA\QA-TEST> Get-Content tests\test_smoke.py -Encoding UTF8
-from playwright.sync_api import Page, expect
+Pas besoin d'installer Java, Maven ni Node : l'application est compilée dans Docker.
 
+## Démarrage rapide
 
-def test_homepage_loads(page: Page, base_url):
-    page.goto(base_url)
-    expect(page.locator("body")).to_be_visible()
+```powershell
+# 1. Cloner, avec le sous-module de l'application
+git clone --recurse-submodules https://github.com/maryem37/QA-TEST.git
+cd QA-TEST
 
+# 2. Installer les dépendances Python et les navigateurs Playwright
+uv sync
+uv run playwright install chromium firefox
 
-def test_admin_page_loads(page: Page, base_url):
-    page.goto(f"{base_url}/admin")
-    expect(page.locator("body")).to_be_visible()
-(qa-test) PS D:\QA\QA-TEST> uv run pytest tests/test_smoke.py -q
-..                                                                                                                                                             [100%]
-2 passed in 10.77s
-(qa-test) PS D:\QA\QA-TEST> 
-(qa-test) PS D:\QA\QA-TEST> uv run playwright codegen http://localhost:8080/admin
-(qa-test) PS D:\QA\QA-TEST> uv run python -m pipeline.gen_tests
-TC-001-01 -> tests/api
-TC-001-02 -> tests/api
-TC-001-03 -> tests/api
-TC-002-01 -> tests/api
-TC-002-03 -> tests/api
-TC-006-03 -> tests/api
-TC-010-01 -> tests/api
-TC-010-02 -> tests/api
-TC-010-03 -> tests/api
-TC-010-04 -> tests/api
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "D:\QA\QA-TEST\pipeline\gen_tests.py", line 74, in <module>
-    main(sys.argv[1:])
-  File "D:\QA\QA-TEST\pipeline\gen_tests.py", line 65, in main
-    code = generate(c.model_dump_json(indent=2))
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\QA\QA-TEST\pipeline\gen_tests.py", line 44, in generate
-    raw = complete(SYSTEM, prompt, PROMPT_VERSION, max_tokens=8000, json_mode=False)
-          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\QA\QA-TEST\pipeline\llm_client.py", line 41, in complete
-    resp = _client.chat.completions.create(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\QA\QA-TEST\.venv\Lib\site-packages\groq\resources\chat\completions.py", line 466, in create
-    return self._post(
-           ^^^^^^^^^^^
-  File "D:\QA\QA-TEST\.venv\Lib\site-packages\groq\_base_client.py", line 1284, in post
-    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
-                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\QA\QA-TEST\.venv\Lib\site-packages\groq\_base_client.py", line 1071, in request
-    raise self._make_status_error_from_response(err.response) from None
-groq.RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m66wnzehejhs240gxhcagbtx` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197275, Requested 3323. Please try again in 4m18.336s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
-(qa-test) PS D:\QA\QA-TEST> uv run python -m pipeline.check_tests
-I001 [*] Import block is un-sorted or un-formatted
- --> tests\api\test_tc_001_02.py:1:1
-  |
-1 | / import pytest
-2 | | import requests
-  | |_______________^
-3 |
-4 |   @pytest.mark.tc("TC-001-02")
-  |
-help: Organize imports
-  |
-3 |
-4 +
-5 | @pytest.mark.tc("TC-001-02")
-  |
+# 3. Configurer l'environnement
+copy .env.example .env      # puis renseigner ANTHROPIC_API_KEY, etc.
 
-Found 1 error.
-[*] 1 fixable with `--fix`.
-13 fichiers vérifiés
-ruff a signalé des erreurs
-(qa-test) PS D:\QA\QA-TEST> uv run pytest tests/gold tests/api -q
-..x..x.xx....F...xx..xx                                                                                                                                        [100%]
-============================================================================= FAILURES ==============================================================================
-____________________________________________________ test_get_room_list_returns_three_rooms_with_required_fields ____________________________________________________
+# 4. Démarrer l'application sous test
+make up
+```
 
-base_url = 'http://localhost:8080'
+Si le sous-module est vide après un clone simple :
+`git submodule update --init --recursive`.
 
-    @pytest.mark.tc("TC-002-01")
-    def test_get_room_list_returns_three_rooms_with_required_fields(base_url):
-        r = requests.get(f"{base_url}/api/room", timeout=10)
-        assert r.status_code == 200
-        data = r.json()
-        assert "rooms" in data
-        rooms = data["rooms"]
-        assert isinstance(rooms, list)
->       assert len(rooms) == 3
-E       AssertionError: assert 5 == 3
-E        +  where 5 = len([{'accessible': True, 'description': 'Aenean porttitor mauris sit amet lacinia molestie. In posuere accumsan aliquet. ...a description for this room', 'features': ['WiFi'], 'image': 'https://www.mwtestconsultancy.co.uk/img/room1.jpg', ...}])
+L'application est ensuite disponible sur <http://localhost:8080>
+(identifiants : `admin` / `password`).
 
-tests\api\test_tc_002_01.py:13: AssertionError
-====================================================================== short test summary info ======================================================================
-FAILED tests/api/test_tc_002_01.py::test_get_room_list_returns_three_rooms_with_required_fields - AssertionError: assert 5 == 3
-1 failed, 14 passed, 8 xfailed in 1.99s
-(qa-test) PS D:\QA\QA-TEST> 
+Pour limiter la consommation mémoire pendant le premier build :
+
+```powershell
+$env:COMPOSE_PARALLEL_LIMIT = 2
+```
+
+## Configuration
+
+Copier `.env.example` vers `.env`. Ce fichier n'est jamais commité.
+
+| Variable | Rôle |
+|---|---|
+| `ANTHROPIC_API_KEY` | Clé de l'API LLM |
+| `LLM_MODEL` | Modèle utilisé (à épingler) |
+| `PROMPT_VERSION` | Version des prompts (`v1`) |
+| `BASE_URL` | URL de l'application sous test (`http://localhost:8080`) |
+| `BACKEND` | `file` (par défaut) ou `xray` |
+| `JIRA_URL`, `JIRA_USER`, `JIRA_API_TOKEN`, `JIRA_PROJECT_KEY` | Accès Jira Cloud |
+| `XRAY_CLIENT_ID`, `XRAY_CLIENT_SECRET` | Accès API Xray |
+
+En CI, les secrets (clé LLM, identifiants Xray) sont fournis via **GitHub Secrets**.
+
+## Commandes Make
+
+| Commande | Action |
+|---|---|
+| `make up` | Construit et démarre l'application, puis attend qu'elle réponde |
+| `make down` | Arrête l'application et supprime les volumes |
+| `make lint` | Vérifie le code avec ruff |
+| `make cases` | Génère et contrôle les cas de test (phase 2) |
+| `make sync` | Exporte les cas vers le backend choisi (`BACKEND=file` ou `xray`) |
+| `make tests` | Génère et contrôle les tests automatisés (phase 4) |
+| `make run` | Exécute les tests (API, Playwright, Selenium) et produit `reports/junit.xml` |
+| `make push` | Envoie les résultats vers le backend |
+| `make report` | Génère `report.md` et `report.html` |
+| `make all` | Enchaîne tout : `up cases sync tests run push report` |
+
+> Certaines commandes dépendent de modules des phases suivantes, pas encore écrits.
+
+## Structure du dépôt
+
+```
+QA-TEST/
+├── app/restful-booker-platform/   # application sous test (sous-module Git)
+├── backends/                      # export vers Jira/Xray ou fichiers JSON
+├── cases/                         # cas de test générés (revus par PR)
+├── docker/                        # Dockerfile des services Java, settings Maven
+├── pipeline/                      # LLM client, génération, contrôles, rapport
+├── prompts/v1/                    # prompts versionnés
+├── reports/                       # JUnit, rapports (ignoré par Git)
+├── requirements/                  # exigences REQ-xxx.md
+├── schemas/                       # modèles Pydantic
+├── scripts/                       # utilitaires (attente de l'application...)
+├── spec/                          # notes d'API fournies au LLM
+├── tests/
+│   ├── gold/                      # tests de référence écrits à la main
+│   ├── api/                       # tests API générés
+│   ├── ui_playwright/             # tests UI Playwright générés
+│   └── ui_selenium/               # tests smoke Selenium générés
+├── .github/workflows/             # CI GitHub Actions
+├── docker-compose.yml
+├── Makefile
+└── pyproject.toml
+```
+
+## Application sous test
+
+restful-booker-platform est une application de réservation de chambres composée de
+sept services. Le dépôt officiel ne fournit pas de Dockerfile qui compile le code
+des services Java (il attend des `.jar` déjà construits). Ce projet ajoute donc :
+
+- `docker/java-service.Dockerfile` : build multi-étapes (Maven JDK 26, puis JRE 26),
+  paramétré par le nom du module ;
+- `docker/maven-settings.xml` : dépôt Maven *milestone* de Spring (le projet utilise
+  Spring Boot `4.1.0-M4`) ;
+- `docker-compose.yml` : les sept services, avec le site exposé sur le port 8080.
+
+| Service | Port hôte |
+|---|---|
+| `rbp-assets` (site web) | 8080 |
+| `rbp-booking` | 3000 |
+| `rbp-room` | 3001 |
+| `rbp-branding` | 3002 |
+| `rbp-auth` | 3004 |
+| `rbp-report` | 3005 |
+| `rbp-message` | 3006 |
+
+La version de l'application est **épinglée** par le commit du sous-module.
+Pour la mettre à jour, modifier explicitement le sous-module puis commiter.
+
+## Conventions
+
+- Chaque test porte un marqueur de traçabilité : `@pytest.mark.tc("TC-...")`.
+- `BASE_URL` provient de l'environnement, jamais codé en dur.
+- Attentes explicites, **pas de `sleep`**, données de test nettoyées.
+- Selenium : 4 à 6 scénarios smoke seulement.
+- Les cas et tests générés par l'IA passent par une **Pull Request** avec revue humaine.
+- Corriger les **prompts**, pas le code généré à la main, puis régénérer.
+
+## Feuille de route
+
+| Phase | Contenu | Livrable |
+|---|---|---|
+| 0 | Préparation : dépôt, uv, Docker, Makefile, CI de lint, Jira/Xray, clé LLM | `make up` démarre l'application |
+| 1 | 10 à 12 exigences `REQ-xxx.md`, `spec/api_notes.md` | Exigences commitées |
+| 2 | Génération de cas de test par IA, contrôle, revue par PR | 30 à 40 cas valides |
+| 3 | Export Jira/Xray idempotent, `mapping.json` | Tests visibles dans Xray |
+| 4 | Génération des tests API, Playwright, Selenium | Suites exécutables |
+| 5 | CI GitHub Actions complète, exécution nocturne | Run vert de bout en bout |
+| 6 | Rapport de synthèse (`report.md`, `report.html`) | Rapport généré par la CI |
+| 7 | Évaluation : métriques, injection de bug, reproductibilité | Preuves chiffrées |
+| 8 | Bonus : OpenTelemetry + Jaeger, LLM-as-judge | — |
+| 9 | Livraison et soutenance | README, schémas, captures |
+
+**Avancement de la phase 0** : structure du dépôt, dépendances uv, Makefile, CI de lint
+et sous-module de l'application en place. Reste : Docker Compose de l'application
+(vérification), Jira Cloud + Xray, clé LLM et secrets GitHub.
+
+Ordre de priorité si le temps manque : exigences → cas → tests API → CI → rapport
+(avec `FileBackend`), puis Xray réel, Playwright et reproductibilité, puis le bonus.
+
+## Limites et risques
+
+- **Hallucinations** : le LLM peut produire des cas ou des tests faux ; d'où la validation
+  Pydantic, les contrôles automatiques et la revue humaine.
+- **Coût et quotas** de l'API LLM : cache par hash et suivi dans les logs JSONL.
+- **Données envoyées au LLM** : seules les exigences et les notes d'API sont transmises ;
+  aucun secret ni donnée personnelle.
+- **Instabilité des tests UI** : Playwright et Selenium sont comparés (durée, instabilité,
+  effort de correction).
+- **Dépendance à Xray** : essai limité dans le temps, d'où le `FileBackend` de secours.
+- **Application en version milestone** : Spring Boot `4.1.0-M4` peut changer ou disparaître
+  des dépôts ; le commit du sous-module est épinglé pour cette raison.
+
+## Perspectives
+
+`ZephyrBackend`, Jenkins (`Jenkinsfile.example`), BDD, OpenTelemetry.
+
+## Licence
+
+À définir. L'application restful-booker-platform reste soumise à sa propre licence.
