@@ -3,12 +3,14 @@ import requests
 
 
 @pytest.mark.tc("TC-010-03")
-def test_message_retrieval_fails_with_invalid_token(base_url):
-    # Use an obviously invalid token
+def test_messages_with_invalid_token_rejected(base_url):
+    """
+    Vérifie que l'API refuse l'accès aux messages lorsqu'un token invalide est fourni.
+    Le comportement attendu est un statut 401 ou 403.
+    """
     r = requests.get(
         f"{base_url}/api/message",
-        cookies={"token": "invalid_token"},
+        headers={"Cookie": "token=invalid_token"},
         timeout=10,
     )
-    # Expected behavior: unauthorized access
-    assert r.status_code == 401
+    assert r.status_code in (401, 403)

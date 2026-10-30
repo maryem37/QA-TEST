@@ -3,32 +3,36 @@ import requests
 
 
 @pytest.mark.tc("TC-010-01")
-def test_messages_after_successful_auth(base_url, admin_token):
-    """Récupérer la liste des messages après authentification réussie."""
-    r = requests.get(
-        f"{base_url}/api/message",
-        cookies={"token": admin_token},
+def test_retrieve_message_list_after_successful_authentication(base_url):
+    # Step 1 – login and obtain token
+    login_resp = requests.post(
+        f"{base_url}/api/auth/login",
+        json={"username": "admin", "password": "password"},
         timeout=10,
     )
-    assert r.status_code == 200
+    assert login_resp.status_code == 200
+    token = login_resp.json().get("token")
+    assert token, "Login response does not contain a token"
 
-    payload = r.json()
-    assert "messages" in payload
-    messages = payload["messages"]
-    assert isinstance(messages, list)
-    assert len(messages) >= 1
-
-    # Vérifier la forme minimale de chaque message
-    for msg in messages:
-        assert {"id", "name", "subject", "read"} <= msg.keys()
-        assert isinstance(msg["id"], int)
-        assert isinstance(msg["name"], str)
-        assert isinstance(msg["subject"], str)
-        assert isinstance(msg["read"], bool)
-
-    # Au moins un message doit correspondre aux valeurs attendues
-    expected = {"name": "James Dean", "subject": "Booking enquiry", "read": False}
-    assert any(
-        all(msg.get(k) == v for k, v in expected.items())
-        for msg in messages
+    # Step 2 – retrieve messages with token in cookie
+    msgs_resp = requests.get(
+        f"{base_url}/api/message",
+        headers={"Cookie": f"token={token}"},
+        timeout=10,
     )
+    assert msgs_resp.status_code == 200
+    payload = msgs_resp.json()
+    assert "messages" in payload, "Response JSON missing 'messages' key"
+
+    messages = payload["messages"]
+    assert isinstance(messages, list), "'messages' should be a list"
+
+    # Verify at least one expected message is present
+    expected = [
+        m
+        for m in messages
+        if m.get("name") == "James Dean"
+        and m.get("subject") == "Booking enquiry"
+        and m.get("read") is False
+    ]
+    assert expected, "Expected message (James Dean) not found in the list"

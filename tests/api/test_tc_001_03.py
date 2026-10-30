@@ -3,13 +3,11 @@ import requests
 
 
 @pytest.mark.tc("TC-001-03")
-def test_login_empty_fields(base_url):
-    r = requests.post(
+def test_admin_login_with_empty_fields_returns_401(base_url):
+    response = requests.post(
         f"{base_url}/api/auth/login",
         json={"username": "", "password": ""},
         timeout=10,
     )
-    assert r.status_code == 401
-    json_resp = r.json()
-    assert "error" in json_resp
-    assert json_resp["error"] == "Invalid credentials"
+    assert response.status_code == 401
+    assert response.json() == {"error": "Invalid credentials"}

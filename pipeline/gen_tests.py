@@ -1,3 +1,5 @@
+﻿"""Génération des tests API à partir des cas (cases/REQ-*.json)."""
+
 import ast
 import json
 import re
@@ -5,6 +7,7 @@ import sys
 import time
 from pathlib import Path
 
+from groq import RateLimitError
 from pydantic import ValidationError
 
 from pipeline.llm_client import complete
@@ -53,21 +56,42 @@ def generate(case_json: str) -> str:
     raise RuntimeError(f"échec après 3 essais ({error})")
 
 
-def main(only: list[str]) -> None:
+def main(args: list[str]) -> None:
+    force = "--force" in args
+    only = [a for a in args if not a.startswith("--")]
     OUT.mkdir(parents=True, exist_ok=True)
-    for f in sorted(Path("cases").glob("REQ-*.json")):
-        if only and f.stem not in only:
-            continue
+
+    files = [
+        f for f in sorted(Path("cases").glob("REQ-*.json")) if not only or f.stem in only
+    ]
+    if not files:
+        print(f"Aucun fichier cases/ ne correspond à : {', '.join(only) or '(aucun)'}")
+        return
+
+    generated = 0
+    for f in files:
         cases = CaseList.model_validate(json.loads(f.read_text(encoding="utf-8")))
-        for c in cases.cases:
-            if c.layer != "API":
+        api_cases = [c for c in cases.cases if c.layer == "API"]
+        if not api_cases:
+            layers = sorted({c.layer for c in cases.cases})
+            print(f"{f.stem} : aucun cas API (couches : {', '.join(layers)}), ignoré")
+            continue
+        for c in api_cases:
+            target = OUT / f"test_{c.id.lower().replace('-', '_')}.py"
+            if target.exists() and not force:
+                print(f"{c.id} : {target.name} existe déjà, ignoré (--force pour régénérer)")
                 continue
-            code = generate(c.model_dump_json(indent=2))
-            (OUT / f"test_{c.id.lower().replace('-', '_')}.py").write_text(
-                code, encoding="utf-8"
-            )
-            print(f"{c.id} -> tests/api")
+            try:
+                code = generate(c.model_dump_json(indent=2))
+            except RateLimitError as e:
+                print(f"Quota LLM atteint, arrêt propre : {str(e)[:200]}")
+                print(f"{generated} test(s) généré(s). Relancez plus tard.")
+                sys.exit(1)
+            target.write_text(code, encoding="utf-8")
+            print(f"{c.id} -> {target}")
+            generated += 1
             time.sleep(3)
+    print(f"{generated} test(s) généré(s)")
 
 
 if __name__ == "__main__":

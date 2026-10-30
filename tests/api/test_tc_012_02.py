@@ -3,10 +3,10 @@ import requests
 
 
 @pytest.mark.tc("TC-012-02")
-def test_message_read_without_token_returns_unauthorized(base_url):
+def test_get_messages_without_token_returns_unauthorized(base_url):
     """
-    Verify that accessing /api/message without the authentication cookie
-    returns an unauthorized error (401 or 403) as defined by the requirements.
+    Vérifie que l'accès à l'endpoint /api/message sans le cookie d'authentification
+    renvoie bien un code 401 ou 403, conformément à la spécification REQ-012.
     """
     response = requests.get(
         f"{base_url}/api/message",
