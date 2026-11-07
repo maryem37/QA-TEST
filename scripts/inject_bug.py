@@ -6,11 +6,17 @@ from pathlib import Path
 ROOT = Path("app/restful-booker-platform/room/src/main/java/com/automationintesting")
 
 BUGS = {
-    "bug-001": {
+    "bug-000": {
         "file": ROOT / "api" / "RoomController.java",
         "old": b"return ResponseEntity.status(HttpStatus.OK).body(rooms);",
         "new": b"return ResponseEntity.status(HttpStatus.ACCEPTED).body(rooms);",
-        "description": "GET /api/room renvoie 202 au lieu de 200 (liste des chambres)",
+        "description": "GET /room renvoie 202 au lieu de 200 (masqué par la passerelle)",
+    },
+    "bug-001": {
+        "file": ROOT / "service" / "RoomService.java",
+        "old": b"return new Rooms(roomDB.queryRooms());",
+        "new": b"return new Rooms(roomDB.queryRooms().subList(0, 0));",
+        "description": "GET /api/room renvoie une liste de chambres vide",
     },
 }
 
