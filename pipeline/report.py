@@ -50,6 +50,11 @@ def facts() -> dict:
         "cases_with_test": len(with_test),
         "requirements_without_test": uncovered,
         "defects": defects,
+        "failures": [
+            {"test": r["test"].split("::")[-1], "tc": r["tc_id"]}
+            for r in results
+            if r["status"] == "FAILED"
+        ],
     }
 
 
@@ -82,7 +87,8 @@ def main() -> None:
         f"| Tests exécutés | {f['total']} |",
         f"| Réussis | {c.get('PASSED', 0)} |",
         f"| Échoués | {c.get('FAILED', 0)} |",
-        f"| Défauts connus (xfail) | {c.get('KNOWN_DEFECT', 0)} |",
+        f"| Tests en défaut connu (xfail) | {c.get('KNOWN_DEFECT', 0)} |",
+        f"| Défauts distincts | {len(f['defects'])} |",
         f"| Durée cumulée | {f['duration_s']} s |",
         f"| Cas de test | {f['cases_total']} (API : {f['cases_api']}, UI : {f['cases_ui']}) |",
         f"| Cas avec test automatisé | {f['cases_with_test']} / {f['cases_total']} |",
@@ -95,6 +101,14 @@ def main() -> None:
     ]
     for d, e in sorted(f["defects"].items()):
         lines.append(f"| {d} | {e['description']} | {', '.join(e['tests'])} |")
+
+    lines += ["", "## Tests échoués", ""]
+    if f["failures"]:
+        lines += ["| Test | Cas |", "|---|---|"]
+        for x in f["failures"]:
+            lines.append(f"| {x['test']} | {x['tc'] or '-'} |")
+    else:
+        lines.append("Aucun.")
 
     lines += ["", "## Commentaire (généré par IA)", ""]
     if args.no_llm or not os.getenv("GROQ_API_KEY"):
