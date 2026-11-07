@@ -51,6 +51,8 @@ services:
     ports: ["3006:3006"]
 
   rbp-assets:
-    build: ./app/restful-booker-platform/assets
+    build:
+      context: ./app/restful-booker-platform/assets
+      dockerfile: ../../../docker/assets.Dockerfile
     restart: on-failure
     ports: ["8080:80"]
