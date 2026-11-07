@@ -28,8 +28,7 @@ comportement attendu défini par les exigences (`requirements/REQ-xxx.md`).
 
 ## DEF-003 : RETIRÉ (faux positif)
 - Hypothèse initiale : DELETE /api/room/<id> renvoie 500 via la passerelle.
-- Vérification : suppression via l'interface (Playwright), DELETE /api/room/<id> -> 202,
-  la ligne disparaît, l'API ne contient plus la chambre.
-- Conclusion : pas de défaut. Les 500 précédents venaient de nos appels de test
-  (GET/DELETE directs hors session de l'interface), pas de l'application.
-- Statut : fermé, retiré du rapport.
+- Vérification : suppression via l'interface (DELETE /api/room/<id> -> 202, la ligne
+  disparaît, l'API ne contient plus la chambre) et test API vert sans xfail.
+- Conclusion : pas de défaut. Les 500 venaient de nos appels de test directs.
+- Statut : fermé.

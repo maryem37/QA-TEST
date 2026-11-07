@@ -58,12 +58,11 @@ Base URL : http://localhost:8080
 - Avec jeton : 200, {"success": true} (pas d'id renvoyé : retrouver la chambre via GET /api/room par roomName)
 
 ## PUT /api/room/<roomid>
-- Auth : cookie `token`.
+- Auth : cookie token.
 - Observé via l'interface : 202.
 
 ## DELETE /api/room/<roomid>
-- Auth : cookie `token`.
-- Observé via l'interface : 202; la chambre disparaît de la liste.
+- Auth : cookie token. Observé : 202, la chambre disparaît.
 
 ## GET /api/message
 - Comportement ATTENDU (REQ-012) : 401 ou 403 sans jeton valide.

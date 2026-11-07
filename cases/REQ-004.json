@@ -1,0 +1,48 @@
+{
+  "cases": [
+    {
+      "id": "TC-004-01",
+      "requirement_id": "REQ-004",
+      "title": "Modification du prix d'une chambre via l'interface admin",
+      "type": "nominal",
+      "layer": "UI",
+      "priority": "Moyenne",
+      "preconditions": [
+        "Le site est démarré",
+        "Une chambre de test existe (créée par l'API, nom unique, jamais 101 à 103)"
+      ],
+      "steps": [
+        {
+          "action": "Ouvrir /admin et se connecter avec admin / password",
+          "expected": "La page /admin/rooms affiche la chambre de test"
+        },
+        {
+          "action": "Ouvrir la chambre de test, cliquer sur Edit, saisir le prix 345, cliquer sur Update",
+          "expected": "La requête PUT /api/room/<id> aboutit (réponse 202)"
+        },
+        {
+          "action": "Interroger GET /api/room",
+          "expected": "La chambre de test a le prix 345"
+        }
+      ]
+    },
+    {
+      "id": "TC-004-02",
+      "requirement_id": "REQ-004",
+      "title": "Modification d'une chambre avec un prix invalide via l'API",
+      "type": "negative",
+      "layer": "API",
+      "priority": "Moyenne",
+      "preconditions": [
+        "Une chambre de test existe (créée par l'API)",
+        "Le comportement du serveur pour un prix invalide n'est pas encore observé"
+      ],
+      "steps": [
+        {
+          "action": "Envoyer PUT /api/room/<id> avec un prix non numérique, cookie token valide",
+          "expected": "La modification est refusée (code à observer) et le prix de la chambre est inchangé"
+        }
+      ]
+    }
+  ]
+}
