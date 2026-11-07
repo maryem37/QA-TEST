@@ -1,6 +1,7 @@
 ﻿import sys
 import xml.etree.ElementTree as ET
 
+
 def statuses(path):
     out = {}
     for t in ET.parse(path).getroot().iter("testcase"):
