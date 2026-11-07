@@ -12,3 +12,5 @@ playwright-report/
 .mypy_cache/
 node_modules/
 .deepeval/
+run-a/
+run-b/
