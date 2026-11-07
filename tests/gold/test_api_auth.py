@@ -23,7 +23,7 @@ def test_login_wrong_password_rejected(base_url):
     assert r.status_code == 401
 
 
-@pytest.mark.tc("TC-001-03")
+@pytest.mark.tc("TC-901-01")
 @pytest.mark.xfail(reason="DEF-001 : JSON invalide sur le login renvoie 500", strict=True)
 def test_login_invalid_json_returns_400(base_url):
     r = requests.post(

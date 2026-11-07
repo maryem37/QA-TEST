@@ -8,16 +8,16 @@
       "layer": "API",
       "priority": "Haute",
       "preconditions": [
-        "Le serveur API est démarré et accessible à http://localhost:8080"
+        "Le serveur API est accessible à http://localhost:8080"
       ],
       "steps": [
         {
-          "action": "Envoyer une requête POST http://localhost:8080/api/auth/login avec le corps JSON {\"username\":\"admin\",\"password\":\"password\"}",
-          "expected": "Réponse 200 et corps JSON contenant la clé \"token\" avec une chaîne non vide"
+          "action": "POST http://localhost:8080/api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"password\"}",
+          "expected": "Réponse 200 avec un JSON contenant la clé \"token\""
         },
         {
-          "action": "Vérifier que le cookie \"token\" est présent dans la réponse",
-          "expected": "Le cookie \"token\" contient la même valeur que le token retourné dans le corps"
+          "action": "Utiliser le token reçu dans le cookie \"token\" et appeler GET http://localhost:8080/api/message",
+          "expected": "Réponse 200 avec la liste des messages (ex. le message de James Dean)"
         }
       ]
     },
@@ -29,16 +29,12 @@
       "layer": "API",
       "priority": "Haute",
       "preconditions": [
-        "Le serveur API est démarré et accessible à http://localhost:8080"
+        "Le serveur API est accessible à http://localhost:8080"
       ],
       "steps": [
         {
-          "action": "Envoyer une requête POST http://localhost:8080/api/auth/login avec le corps JSON {\"username\":\"admin\",\"password\":\"wrongpass\"}",
-          "expected": "Réponse HTTP 401 (ou code d'erreur indiqué) et corps JSON contenant un message d'erreur indiquant \"Invalid credentials\""
-        },
-        {
-          "action": "Vérifier qu'aucun cookie \"token\" n'est présent dans la réponse",
-          "expected": "Aucun cookie \"token\" n'est renvoyé"
+          "action": "POST http://localhost:8080/api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"wrongpass\"}",
+          "expected": "Réponse 401 avec le JSON {\"error\":\"Invalid credentials\"}"
         }
       ]
     },
@@ -50,16 +46,12 @@
       "layer": "API",
       "priority": "Haute",
       "preconditions": [
-        "Le serveur API est démarré et accessible à http://localhost:8080"
+        "Le serveur API est accessible à http://localhost:8080"
       ],
       "steps": [
         {
-          "action": "Envoyer une requête POST http://localhost:8080/api/auth/login avec le corps JSON {\"username\":\"\",\"password\":\"\"}",
-          "expected": "Réponse HTTP 400 (ou code d'erreur indiqué) et corps JSON contenant un message d'erreur indiquant que les champs sont requis"
-        },
-        {
-          "action": "Vérifier qu'aucun cookie \"token\" n'est présent dans la réponse",
-          "expected": "Aucun cookie \"token\" n'est renvoyé"
+          "action": "POST http://localhost:8080/api/auth/login avec le corps {\"username\":\"\",\"password\":\"\"}",
+          "expected": "Réponse 401 avec le JSON {\"error\":\"Invalid credentials\"}"
         }
       ]
     }

@@ -7,7 +7,7 @@ from pathlib import Path
 import groq
 from dotenv import load_dotenv
 
-load_dotenv(override=True)
+load_dotenv()
 
 MODEL = os.getenv("LLM_MODEL", "openai/gpt-oss-120b")
 CACHE_DIR = Path(".cache/llm")
@@ -31,11 +31,19 @@ def complete(
     ).hexdigest()
     cache_file = CACHE_DIR / f"{key}.json"
     if cache_file.exists():
-        return json.loads(cache_file.read_text(encoding="utf-8"))["text"]
+        text = json.loads(cache_file.read_text(encoding="utf-8"))["text"]
+        with LOG_FILE.open("a", encoding="utf-8") as f:
+            f.write(json.dumps({"ts": time.strftime("%Y-%m-%dT%H:%M:%S"), "model": MODEL,
+                                "prompt_version": prompt_version, "json_mode": json_mode,
+                                "cache_hit": True, "attempt": 0, "input_tokens": 0,
+                                "output_tokens": 0, "duration_s": 0}) + "\n")
+        return text
 
     kwargs = {"response_format": {"type": "json_object"}} if json_mode else {}
 
+    attempts = 0
     for attempt in range(4):
+        attempts = attempt + 1
         try:
             start = time.time()
             resp = _client.chat.completions.create(
@@ -64,6 +72,8 @@ def complete(
                     "model": MODEL,
                     "prompt_version": prompt_version,
                     "json_mode": json_mode,
+                    "cache_hit": False,
+                    "attempt": attempts,
                     "input_tokens": resp.usage.prompt_tokens,
                     "output_tokens": resp.usage.completion_tokens,
                     "duration_s": round(time.time() - start, 2),

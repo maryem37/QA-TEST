@@ -1,5 +1,6 @@
 import json
 import re
+import sys
 import time
 from pathlib import Path
 
@@ -38,16 +39,23 @@ def generate(req_id: str, req_text: str) -> CaseList:
     raise RuntimeError(f"{req_id} : échec après 3 essais ({error})")
 
 
-def main() -> None:
+def main(args: list[str]) -> None:
+    force = "--force" in args
+    only = [a for a in args if not a.startswith("--")]
     Path("cases").mkdir(exist_ok=True)
     for f in sorted(Path("requirements").glob("REQ-*.md")):
         req_id = f.stem
-        cases = generate(req_id, f.read_text(encoding="utf-8"))
+        if only and req_id not in only:
+            continue
         out = Path("cases") / f"{req_id}.json"
+        if out.exists() and not force:
+            print(f"{req_id} : déjà généré, ignoré (--force pour régénérer)")
+            continue
+        cases = generate(req_id, f.read_text(encoding="utf-8"))
         out.write_text(cases.model_dump_json(indent=2), encoding="utf-8")
         print(f"{req_id} : {len(cases.cases)} cas")
         time.sleep(3)
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

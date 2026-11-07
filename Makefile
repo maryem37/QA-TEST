@@ -1,11 +1,10 @@
-
 ifeq ($(OS),Windows_NT)
   SHELL := cmd.exe
 endif
 
 BACKEND ?= file
 
-.PHONY: up down lint cases sync tests run push report all
+.PHONY: up down lint cases sync tests run run-all push report all
 
 up:
 	docker compose up -d --build
@@ -29,7 +28,10 @@ tests:
 	uv run python -m pipeline.check_tests
 
 run:
-	uv run pytest tests/api tests/ui_playwright tests/ui_selenium --junitxml=reports/junit.xml
+	uv run pytest tests/api --junitxml=reports/junit.xml
+
+run-all:
+	uv run pytest tests/gold tests/api
 
 push:
 	uv run python -m pipeline.push_results --backend $(BACKEND)

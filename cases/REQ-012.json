@@ -3,34 +3,47 @@
     {
       "id": "TC-012-01",
       "requirement_id": "REQ-012",
-      "title": "Connexion réussie avec des identifiants valides",
+      "title": "Lecture des messages avec un jeton valide",
       "type": "nominal",
       "layer": "API",
       "priority": "Haute",
       "preconditions": [
-        "Le serveur API est démarré et accessible à http://localhost:8080"
+        "Obtenir un token valide via POST /api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"password\"}"
       ],
       "steps": [
         {
-          "action": "Envoyer une requête POST http://localhost:8080/api/auth/login avec le corps JSON {\"username\":\"admin\",\"password\":\"password\"}",
-          "expected": "Réponse HTTP 200 contenant un corps JSON {\"token\":\"<chaîne>\"} et le cookie \"token\" contenant la même chaîne"
+          "action": "Envoyer une requête GET /api/message avec le cookie token=<token_obtenu>",
+          "expected": "Réponse 200 et le corps JSON contenant la clé \"messages\" avec la liste des messages"
         }
       ]
     },
     {
       "id": "TC-012-02",
       "requirement_id": "REQ-012",
-      "title": "Échec de connexion avec un mot de passe incorrect",
+      "title": "Lecture des messages sans jeton",
       "type": "negative",
       "layer": "API",
       "priority": "Haute",
-      "preconditions": [
-        "Le serveur API est démarré et accessible à http://localhost:8080"
-      ],
+      "preconditions": [],
       "steps": [
         {
-          "action": "Envoyer une requête POST http://localhost:8080/api/auth/login avec le corps JSON {\"username\":\"admin\",\"password\":\"mauvaisMotDePasse\"}",
-          "expected": "Réponse HTTP 401 (ou code d'erreur approprié) sans cookie \"token\""
+          "action": "Envoyer une requête GET /api/message sans le cookie token",
+          "expected": "Réponse 401 (ou 403) indiquant l'absence d'authentification"
+        }
+      ]
+    },
+    {
+      "id": "TC-012-03",
+      "requirement_id": "REQ-012",
+      "title": "Lecture des messages avec un jeton invalide",
+      "type": "negative",
+      "layer": "API",
+      "priority": "Haute",
+      "preconditions": [],
+      "steps": [
+        {
+          "action": "Envoyer une requête GET /api/message avec le cookie token=invalid_token",
+          "expected": "Réponse 401 (ou 403) indiquant que le jeton est invalide ou expiré"
         }
       ]
     }

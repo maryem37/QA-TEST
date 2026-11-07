@@ -3,55 +3,82 @@
     {
       "id": "TC-010-01",
       "requirement_id": "REQ-010",
-      "title": "Consultation d'un message reçu par l'administrateur",
+      "title": "Récupérer la liste des messages après authentification réussie",
       "type": "nominal",
-      "layer": "UI",
+      "layer": "API",
       "priority": "Moyenne",
       "preconditions": [
-        "Un visiteur a envoyé un message via le formulaire de contact",
-        "L'administrateur possède des identifiants valides"
+        "Le serveur API est disponible à http://localhost:8080",
+        "Un compte administrateur existant (username: admin, password: password)"
       ],
       "steps": [
         {
-          "action": "Se connecter à l'interface admin avec le login 'admin' et le mot de passe 'password'",
-          "expected": "L'administrateur est authentifié et redirigé vers le tableau de bord"
+          "action": "POST /api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"password\"}",
+          "expected": "Réponse 200 avec un JSON contenant le champ \"token\""
         },
         {
-          "action": "Cliquer sur le menu 'Messages'",
-          "expected": "La liste des messages reçus s'affiche, incluant le message envoyé par le visiteur"
+          "action": "Stocker le token retourné et l’inclure dans le cookie de la requête suivante",
+          "expected": "Cookie \"token\" contenant la valeur du token"
         },
         {
-          "action": "Sélectionner le message dans la liste",
-          "expected": "Le contenu complet du message s'affiche"
-        },
-        {
-          "action": "Cliquer sur le bouton 'Marquer comme lu'",
-          "expected": "Le statut du message passe à 'lu'"
-        },
-        {
-          "action": "Cliquer sur le bouton 'Supprimer'",
-          "expected": "Le message disparaît de la liste et un message de confirmation s'affiche"
+          "action": "GET /api/message avec le cookie token",
+          "expected": "Réponse 200 et un JSON contenant la clé \"messages\" avec au moins un élément dont \"name\":\"James Dean\", \"subject\":\"Booking enquiry\", \"read\":false"
         }
       ]
     },
     {
       "id": "TC-010-02",
       "requirement_id": "REQ-010",
-      "title": "Tentative d'accès à la boîte de messages sans authentification",
+      "title": "Échec de la récupération des messages sans authentification",
       "type": "negative",
-      "layer": "UI",
+      "layer": "API",
       "priority": "Moyenne",
       "preconditions": [
-        "Aucun utilisateur n'est connecté"
+        "Le serveur API est disponible à http://localhost:8080"
       ],
       "steps": [
         {
-          "action": "Accéder directement à l'URL de la boîte de messages admin (ex: /admin/messages)",
-          "expected": "L'utilisateur est redirigé vers la page de connexion"
+          "action": "GET /api/message sans aucun cookie",
+          "expected": "Réponse 401 (Unauthorized) ou 403 selon l’implémentation"
+        }
+      ]
+    },
+    {
+      "id": "TC-010-03",
+      "requirement_id": "REQ-010",
+      "title": "Échec de la récupération des messages avec un token invalide",
+      "type": "negative",
+      "layer": "API",
+      "priority": "Moyenne",
+      "preconditions": [
+        "Le serveur API est disponible à http://localhost:8080"
+      ],
+      "steps": [
+        {
+          "action": "GET /api/message avec le cookie token=invalid_token",
+          "expected": "Réponse 401 (Unauthorized)"
+        }
+      ]
+    },
+    {
+      "id": "TC-010-04",
+      "requirement_id": "REQ-010",
+      "title": "Vérifier que le message initial est non lu",
+      "type": "nominal",
+      "layer": "API",
+      "priority": "Moyenne",
+      "preconditions": [
+        "Le serveur API est disponible à http://localhost:8080",
+        "Authentification réussie et token stocké"
+      ],
+      "steps": [
+        {
+          "action": "POST /api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"password\"}",
+          "expected": "Réponse 200 avec le champ \"token\""
         },
         {
-          "action": "Essayer de visualiser le contenu de la page sans se connecter",
-          "expected": "Aucun message n'est affiché et un message d'erreur d'authentification apparaît"
+          "action": "GET /api/message avec le cookie token valide",
+          "expected": "Réponse 200 contenant un tableau \"messages\" où le premier objet a \"read\":false"
         }
       ]
     }

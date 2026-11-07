@@ -1,18 +1,30 @@
+import json
 import os
+from pathlib import Path
 
 import pytest
 import requests
+
+_KNOWN = json.loads(
+    (Path(__file__).resolve().parent.parent / "spec" / "known_defects.json")
+    .read_text(encoding="utf-8")
+)
+
+
+def pytest_collection_modifyitems(config, items):
+    """Marque en xfail strict les tests liés à un défaut connu (spec/known_defects.json)."""
+    for item in items:
+        marker = item.get_closest_marker("tc")
+        if marker and marker.args and marker.args[0] in _KNOWN:
+            d = _KNOWN[marker.args[0]]
+            item.add_marker(
+                pytest.mark.xfail(reason=f"{d['def']} : {d['title']}", strict=True)
+            )
 
 
 @pytest.fixture(scope="session")
 def base_url():
     return os.environ.get("BASE_URL", "http://localhost:8080").rstrip("/")
-
-
-@pytest.fixture(scope="session")
-def room_direct_url():
-    """Service rbp-room en direct, contourne la passerelle (DEF-003)."""
-    return os.environ.get("ROOM_DIRECT_URL", "http://localhost:3001")
 
 
 @pytest.fixture(scope="session")

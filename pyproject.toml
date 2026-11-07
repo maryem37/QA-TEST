@@ -3,7 +3,6 @@ name = "qa-test"
 version = "0.1.0"
 requires-python = ">=3.11"
 dependencies = [
-    "anthropic>=2.3.0",
     "groq>=1.7.0",
     "pydantic>=2.14.2",
     "pytest>=9.2.0",

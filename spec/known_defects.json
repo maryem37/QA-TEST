@@ -1,0 +1,18 @@
+{
+  "TC-010-02": {
+    "def": "DEF-002",
+    "title": "GET /api/message sans jeton renvoie 200"
+  },
+  "TC-010-03": {
+    "def": "DEF-002",
+    "title": "GET /api/message avec jeton invalide renvoie 200"
+  },
+  "TC-012-02": {
+    "def": "DEF-002",
+    "title": "GET /api/message sans jeton renvoie 200"
+  },
+  "TC-012-03": {
+    "def": "DEF-002",
+    "title": "GET /api/message avec jeton invalide renvoie 200"
+  }
+}

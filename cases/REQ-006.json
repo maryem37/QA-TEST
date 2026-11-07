@@ -3,30 +3,112 @@
     {
       "id": "TC-006-01",
       "requirement_id": "REQ-006",
-      "title": "Récupération de la liste des chambres disponibles",
+      "title": "Réservation valide via l'interface utilisateur",
       "type": "nominal",
-      "layer": "API",
+      "layer": "UI",
       "priority": "Haute",
-      "preconditions": [],
+      "preconditions": [
+        "L'utilisateur accède à la page d'accueil du site",
+        "Le service GET /api/room renvoie une liste de chambres disponibles"
+      ],
       "steps": [
         {
-          "action": "Envoyer une requête GET http://localhost:8080/api/room",
-          "expected": "Réponse 200 avec un corps JSON contenant la clé \"rooms\" et au moins les trois chambres initiales (roomid 101, 102, 103)"
+          "action": "Ouvrir la page de réservation",
+          "expected": "Le formulaire de réservation s'affiche avec les champs prénom, nom, email, téléphone, sélection de chambre, date d'arrivée et date de départ"
+        },
+        {
+          "action": "Saisir \"Jean\" dans le champ prénom",
+          "expected": "Le champ contient \"Jean\""
+        },
+        {
+          "action": "Saisir \"Dupont\" dans le champ nom",
+          "expected": "Le champ contient \"Dupont\""
+        },
+        {
+          "action": "Saisir \"jean.dupont@example.com\" dans le champ email",
+          "expected": "Le champ contient \"jean.dupont@example.com\""
+        },
+        {
+          "action": "Saisir \"0601020304\" dans le champ téléphone",
+          "expected": "Le champ contient \"0601020304\""
+        },
+        {
+          "action": "Sélectionner la chambre \"101\" (Single)",
+          "expected": "La chambre \"101\" est sélectionnée"
+        },
+        {
+          "action": "Choisir la date d'arrivée \"2024-12-01\"",
+          "expected": "La date d'arrivée affichée est \"2024-12-01\""
+        },
+        {
+          "action": "Choisir la date de départ \"2024-12-05\"",
+          "expected": "La date de départ affichée est \"2024-12-05\""
+        },
+        {
+          "action": "Cliquer sur le bouton \"Réserver\"",
+          "expected": "Un message de confirmation s'affiche : \"Réservation confirmée\""
+        },
+        {
+          "action": "Se connecter en tant qu'administrateur via la page admin (login admin/password)",
+          "expected": "L'administrateur est authentifié et le token est stocké en cookie"
+        },
+        {
+          "action": "Accéder au calendrier admin",
+          "expected": "Le calendrier affiche la nouvelle réservation du 1/12/2024 au 5/12/2024 pour la chambre 101"
         }
       ]
     },
     {
       "id": "TC-006-02",
       "requirement_id": "REQ-006",
-      "title": "Tentative de création de réservation via un endpoint inexistant",
+      "title": "Réservation rejetée lorsque la date de départ est antérieure à la date d'arrivée",
       "type": "negative",
-      "layer": "API",
+      "layer": "UI",
       "priority": "Haute",
-      "preconditions": [],
+      "preconditions": [
+        "L'utilisateur accède à la page de réservation"
+      ],
       "steps": [
         {
-          "action": "Envoyer une requête POST http://localhost:8080/api/room avec un corps contenant les informations de réservation (prénom, nom, email, téléphone, date_arrivée, date_départ)",
-          "expected": "Réponse d'erreur 404 ou 405 indiquant que la méthode POST n'est pas supportée sur cet endpoint"
+          "action": "Ouvrir la page de réservation",
+          "expected": "Le formulaire de réservation s'affiche"
+        },
+        {
+          "action": "Remplir tous les champs obligatoires avec des valeurs valides (prénom, nom, email, téléphone, chambre)",
+          "expected": "Tous les champs sont remplis"
+        },
+        {
+          "action": "Choisir la date d'arrivée \"2024-12-10\"",
+          "expected": "La date d'arrivée affichée est \"2024-12-10\""
+        },
+        {
+          "action": "Choisir la date de départ \"2024-12-08\" (avant la date d'arrivée)",
+          "expected": "La date de départ affichée est \"2024-12-08\""
+        },
+        {
+          "action": "Cliquer sur le bouton \"Réserver\"",
+          "expected": "Un message d'erreur s'affiche : \"La date de départ doit être postérieure à la date d'arrivée\" et aucune réservation n'est créée"
+        }
+      ]
+    },
+    {
+      "id": "TC-006-03",
+      "requirement_id": "REQ-006",
+      "title": "Vérifier la disponibilité des chambres avant réservation",
+      "type": "nominal",
+      "layer": "API",
+      "priority": "Haute",
+      "preconditions": [
+        "Le serveur est démarré et accessible à http://localhost:8080"
+      ],
+      "steps": [
+        {
+          "action": "Envoyer une requête GET http://localhost:8080/api/room",
+          "expected": "Réponse 200 avec un corps JSON contenant la liste des chambres (roomid 1,2,3) et leurs attributs"
+        },
+        {
+          "action": "Analyser la réponse pour s'assurer que la chambre 101 a le champ \"type\":\"Single\" et est disponible",
+          "expected": "La chambre 101 apparaît dans la liste avec le type Single et aucune indication d'indisponibilité"
         }
       ]
     }
