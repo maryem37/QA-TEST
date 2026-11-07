@@ -48,6 +48,7 @@ def main() -> None:
     MAPPING.write_text(
         json.dumps(mapping, ensure_ascii=False, indent=2, sort_keys=True),
         encoding="utf-8",
+        newline="\n",
     )
     print(
         f"Export {args.backend} : {created} créés, {updated} mis à jour, "

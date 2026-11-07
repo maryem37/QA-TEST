@@ -31,6 +31,14 @@ jobs:
       - run: uv run pytest tests/gold tests/api --junitxml=reports/junit.xml
       - run: uv run python -m pipeline.coverage_matrix
         if: always()
+      - run: uv run python -m pipeline.push_results --backend file
+        if: always()
+      - run: uv run python -m pipeline.report
+        if: always()
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      - run: cat reports/report.md >> "$GITHUB_STEP_SUMMARY"
+        if: always()
       - run: cat reports/traceability.md >> "$GITHUB_STEP_SUMMARY"
         if: always()
       - run: docker compose logs --tail=100

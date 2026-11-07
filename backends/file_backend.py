@@ -46,12 +46,15 @@ class FileBackend(TestManagementBackend):
         self._path(key).write_text(
             json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True),
             encoding="utf-8",
+            newline="\n",
         )
 
     def import_results(self, results: list[dict]) -> str:
         execution_id = "EXEC-" + datetime.now(UTC).strftime("%Y%m%d%H%M%S")
         out = self.root / f"{execution_id}.json"
         out.write_text(
-            json.dumps(results, ensure_ascii=False, indent=2), encoding="utf-8"
+            json.dumps(results, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+            newline="\n",
         )
         return execution_id
