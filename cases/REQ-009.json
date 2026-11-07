@@ -1,0 +1,124 @@
+{
+  "cases": [
+    {
+      "id": "TC-009-01",
+      "requirement_id": "REQ-009",
+      "title": "Envoi du formulaire de contact avec données valides",
+      "type": "nominal",
+      "layer": "UI",
+      "priority": "Moyenne",
+      "preconditions": [
+        "L'utilisateur est sur la page de contact"
+      ],
+      "steps": [
+        {
+          "action": "Remplir le champ 'Nom' avec 'Jean Dupont'",
+          "expected": "Le champ accepte la saisie"
+        },
+        {
+          "action": "Remplir le champ 'Email' avec 'jean.dupont@example.com'",
+          "expected": "Le champ accepte la saisie"
+        },
+        {
+          "action": "Remplir le champ 'Sujet' avec 'Demande de réservation'",
+          "expected": "Le champ accepte la saisie"
+        },
+        {
+          "action": "Remplir le champ 'Message' avec un texte de 50 caractères",
+          "expected": "Le champ accepte la saisie"
+        },
+        {
+          "action": "Cliquer sur le bouton 'Envoyer'",
+          "expected": "Le formulaire est soumis et un message de confirmation 'Votre message a été envoyé' s'affiche"
+        }
+      ]
+    },
+    {
+      "id": "TC-009-02",
+      "requirement_id": "REQ-009",
+      "title": "Refus du formulaire avec champs vides",
+      "type": "negative",
+      "layer": "UI",
+      "priority": "Moyenne",
+      "preconditions": [
+        "L'utilisateur est sur la page de contact"
+      ],
+      "steps": [
+        {
+          "action": "Laisser tous les champs vides",
+          "expected": "Aucun texte n'est présent dans les champs"
+        },
+        {
+          "action": "Cliquer sur le bouton 'Envoyer'",
+          "expected": "Le formulaire n'est pas soumis et des messages d'erreur 'Ce champ est obligatoire' s'affichent sous chaque champ"
+        }
+      ]
+    },
+    {
+      "id": "TC-009-03",
+      "requirement_id": "REQ-009",
+      "title": "Refus du formulaire avec email invalide",
+      "type": "negative",
+      "layer": "UI",
+      "priority": "Moyenne",
+      "preconditions": [
+        "L'utilisateur est sur la page de contact"
+      ],
+      "steps": [
+        {
+          "action": "Remplir le champ 'Nom' avec 'Alice'",
+          "expected": "Le champ accepte la saisie"
+        },
+        {
+          "action": "Remplir le champ 'Email' avec 'alice-at-mail'",
+          "expected": "Le champ accepte la saisie"
+        },
+        {
+          "action": "Remplir le champ 'Sujet' avec 'Question'",
+          "expected": "Le champ accepte la saisie"
+        },
+        {
+          "action": "Remplir le champ 'Message' avec un texte valide",
+          "expected": "Le champ accepte la saisie"
+        },
+        {
+          "action": "Cliquer sur le bouton 'Envoyer'",
+          "expected": "Le formulaire n'est pas soumis et le message d'erreur 'Adresse email invalide' s'affiche sous le champ Email"
+        }
+      ]
+    },
+    {
+      "id": "TC-009-04",
+      "requirement_id": "REQ-009",
+      "title": "Refus du formulaire avec sujet trop court ou trop long",
+      "type": "negative",
+      "layer": "UI",
+      "priority": "Moyenne",
+      "preconditions": [
+        "L'utilisateur est sur la page de contact"
+      ],
+      "steps": [
+        {
+          "action": "Remplir le champ 'Nom' avec 'Bob'",
+          "expected": "Le champ accepte la saisie"
+        },
+        {
+          "action": "Remplir le champ 'Email' avec 'bob@example.com'",
+          "expected": "Le champ accepte la saisie"
+        },
+        {
+          "action": "Remplir le champ 'Sujet' avec 'Hi' (2 caractères)",
+          "expected": "Le champ accepte la saisie"
+        },
+        {
+          "action": "Remplir le champ 'Message' avec un texte valide",
+          "expected": "Le champ accepte la saisie"
+        },
+        {
+          "action": "Cliquer sur le bouton 'Envoyer'",
+          "expected": "Le formulaire n'est pas soumis et le message d'erreur 'Le sujet doit contenir entre 5 et 100 caractères' s'affiche"
+        }
+      ]
+    }
+  ]
+}

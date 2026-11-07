@@ -1,0 +1,59 @@
+{
+  "cases": [
+    {
+      "id": "TC-001-01",
+      "requirement_id": "REQ-001",
+      "title": "Connexion administrateur avec identifiants valides",
+      "type": "nominal",
+      "layer": "API",
+      "priority": "Haute",
+      "preconditions": [
+        "Le serveur API est accessible à http://localhost:8080"
+      ],
+      "steps": [
+        {
+          "action": "POST http://localhost:8080/api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"password\"}",
+          "expected": "Réponse 200 avec un JSON contenant la clé \"token\""
+        },
+        {
+          "action": "Utiliser le token reçu dans le cookie \"token\" et appeler GET http://localhost:8080/api/message",
+          "expected": "Réponse 200 avec la liste des messages (ex. le message de James Dean)"
+        }
+      ]
+    },
+    {
+      "id": "TC-001-02",
+      "requirement_id": "REQ-001",
+      "title": "Connexion administrateur avec mot de passe incorrect",
+      "type": "negative",
+      "layer": "API",
+      "priority": "Haute",
+      "preconditions": [
+        "Le serveur API est accessible à http://localhost:8080"
+      ],
+      "steps": [
+        {
+          "action": "POST http://localhost:8080/api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"wrongpass\"}",
+          "expected": "Réponse 401 avec le JSON {\"error\":\"Invalid credentials\"}"
+        }
+      ]
+    },
+    {
+      "id": "TC-001-03",
+      "requirement_id": "REQ-001",
+      "title": "Connexion administrateur avec champs vides",
+      "type": "negative",
+      "layer": "API",
+      "priority": "Haute",
+      "preconditions": [
+        "Le serveur API est accessible à http://localhost:8080"
+      ],
+      "steps": [
+        {
+          "action": "POST http://localhost:8080/api/auth/login avec le corps {\"username\":\"\",\"password\":\"\"}",
+          "expected": "Réponse 401 avec le JSON {\"error\":\"Invalid credentials\"}"
+        }
+      ]
+    }
+  ]
+}

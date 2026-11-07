@@ -1,0 +1,64 @@
+{
+  "cases": [
+    {
+      "id": "TC-002-01",
+      "requirement_id": "REQ-002",
+      "title": "Récupérer la liste des chambres via l'API",
+      "type": "nominal",
+      "layer": "API",
+      "priority": "Haute",
+      "preconditions": [
+        "Le serveur API est démarré et accessible à http://localhost:8080"
+      ],
+      "steps": [
+        {
+          "action": "Envoyer une requête GET http://localhost:8080/api/room",
+          "expected": "Réponse HTTP 200 avec un corps JSON contenant la clé \"rooms\" et au moins 1 objet"
+        },
+        {
+          "action": "Vérifier que chaque objet possède les champs \"type\" (String) et \"roomPrice\" (int)",
+          "expected": "Tous les objets retournés contiennent bien les champs \"type\" et \"roomPrice\" avec des valeurs non nulles"
+        }
+      ]
+    },
+    {
+      "id": "TC-002-02",
+      "requirement_id": "REQ-002",
+      "title": "Affichage de la liste des chambres sur la page d'accueil",
+      "type": "nominal",
+      "layer": "UI",
+      "priority": "Haute",
+      "preconditions": [
+        "Le serveur API fonctionne",
+        "L'utilisateur ouvre la page d'accueil du site"
+      ],
+      "steps": [
+        {
+          "action": "L'application UI effectue un appel GET /api/room en arrière‑plan",
+          "expected": "L'API répond 200 avec la liste des 3 chambres"
+        },
+        {
+          "action": "L'interface affiche chaque chambre reçue",
+          "expected": "Pour chaque chambre, le type et le prix sont visibles et un bouton \"Réserver\" est présent"
+        }
+      ]
+    },
+    {
+      "id": "TC-002-03",
+      "requirement_id": "REQ-002",
+      "title": "Échec de connexion avec identifiants invalides",
+      "type": "negative",
+      "layer": "API",
+      "priority": "Haute",
+      "preconditions": [
+        "Le serveur API est en marche"
+      ],
+      "steps": [
+        {
+          "action": "Envoyer une requête POST http://localhost:8080/api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"wrong\"}",
+          "expected": "Réponse HTTP 401 avec le corps JSON {\"error\":\"Invalid credentials\"}"
+        }
+      ]
+    }
+  ]
+}

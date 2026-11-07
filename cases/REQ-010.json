@@ -1,0 +1,86 @@
+{
+  "cases": [
+    {
+      "id": "TC-010-01",
+      "requirement_id": "REQ-010",
+      "title": "Récupérer la liste des messages après authentification réussie",
+      "type": "nominal",
+      "layer": "API",
+      "priority": "Moyenne",
+      "preconditions": [
+        "Le serveur API est disponible à http://localhost:8080",
+        "Un compte administrateur existant (username: admin, password: password)"
+      ],
+      "steps": [
+        {
+          "action": "POST /api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"password\"}",
+          "expected": "Réponse 200 avec un JSON contenant le champ \"token\""
+        },
+        {
+          "action": "Stocker le token retourné et l’inclure dans le cookie de la requête suivante",
+          "expected": "Cookie \"token\" contenant la valeur du token"
+        },
+        {
+          "action": "GET /api/message avec le cookie token",
+          "expected": "Réponse 200 et un JSON contenant la clé \"messages\" avec au moins un élément dont \"name\":\"James Dean\", \"subject\":\"Booking enquiry\", \"read\":false"
+        }
+      ]
+    },
+    {
+      "id": "TC-010-02",
+      "requirement_id": "REQ-010",
+      "title": "Échec de la récupération des messages sans authentification",
+      "type": "negative",
+      "layer": "API",
+      "priority": "Moyenne",
+      "preconditions": [
+        "Le serveur API est disponible à http://localhost:8080"
+      ],
+      "steps": [
+        {
+          "action": "GET /api/message sans aucun cookie",
+          "expected": "Réponse 401 (Unauthorized) ou 403 selon l’implémentation"
+        }
+      ]
+    },
+    {
+      "id": "TC-010-03",
+      "requirement_id": "REQ-010",
+      "title": "Échec de la récupération des messages avec un token invalide",
+      "type": "negative",
+      "layer": "API",
+      "priority": "Moyenne",
+      "preconditions": [
+        "Le serveur API est disponible à http://localhost:8080"
+      ],
+      "steps": [
+        {
+          "action": "GET /api/message avec le cookie token=invalid_token",
+          "expected": "Réponse 401 (Unauthorized)"
+        }
+      ]
+    },
+    {
+      "id": "TC-010-04",
+      "requirement_id": "REQ-010",
+      "title": "Vérifier que le message initial est non lu",
+      "type": "nominal",
+      "layer": "API",
+      "priority": "Moyenne",
+      "preconditions": [
+        "Le serveur API est disponible à http://localhost:8080",
+        "Authentification réussie et token stocké"
+      ],
+      "steps": [
+        {
+          "action": "POST /api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"password\"}",
+          "expected": "Réponse 200 avec le champ \"token\""
+        },
+        {
+          "action": "GET /api/message avec le cookie token valide",
+          "expected": "Réponse 200 contenant un tableau \"messages\" où le premier objet a \"read\":false"
+        }
+      ]
+    }
+  ]
+}

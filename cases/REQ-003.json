@@ -1,0 +1,80 @@
+{
+  "cases": [
+    {
+      "id": "TC-003-01",
+      "requirement_id": "REQ-003",
+      "title": "Création d'une chambre valide via l'interface admin",
+      "type": "nominal",
+      "layer": "UI",
+      "priority": "Haute",
+      "preconditions": [
+        "L'administrateur possède un compte valide",
+        "Le serveur est démarré"
+      ],
+      "steps": [
+        {
+          "action": "Envoyer une requête POST /api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"password\"}",
+          "expected": "Réponse 200 avec un token dans le corps"
+        },
+        {
+          "action": "Stocker le token et le placer dans le cookie 'token'",
+          "expected": "Cookie 'token' contenant le token"
+        },
+        {
+          "action": "Accéder à la page de création de chambre dans l'UI admin",
+          "expected": "Formulaire de création affiché"
+        },
+        {
+          "action": "Remplir le formulaire : numéro='104', type='Single', prix=120, accessible=true, description='Nouvelle chambre', features=['WiFi'], image='url.jpg'",
+          "expected": "Les champs sont acceptés"
+        },
+        {
+          "action": "Soumettre le formulaire",
+          "expected": "Message de succès 'Chambre créée avec succès'"
+        },
+        {
+          "action": "Envoyer une requête GET /api/room avec le cookie token",
+          "expected": "Réponse 200 contenant la chambre avec roomName '104' et les valeurs fournies"
+        }
+      ]
+    },
+    {
+      "id": "TC-003-02",
+      "requirement_id": "REQ-003",
+      "title": "Échec de création d'une chambre avec prix invalide",
+      "type": "negative",
+      "layer": "UI",
+      "priority": "Haute",
+      "preconditions": [
+        "L'administrateur possède un compte valide",
+        "Le serveur est démarré"
+      ],
+      "steps": [
+        {
+          "action": "Envoyer une requête POST /api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"password\"}",
+          "expected": "Réponse 200 avec un token"
+        },
+        {
+          "action": "Stocker le token dans le cookie 'token'",
+          "expected": "Cookie 'token' contenant le token"
+        },
+        {
+          "action": "Accéder à la page de création de chambre dans l'UI admin",
+          "expected": "Formulaire affiché"
+        },
+        {
+          "action": "Remplir le formulaire : numéro='', type='Double', prix='abc', accessible=false, description='Test', features=[], image=''",
+          "expected": "Les champs sont invalides"
+        },
+        {
+          "action": "Soumettre le formulaire",
+          "expected": "Message d'erreur indiquant 'Numéro de chambre requis' ou 'Prix invalide'"
+        },
+        {
+          "action": "Envoyer une requête GET /api/room avec le cookie token",
+          "expected": "La liste des chambres ne contient pas de nouvelle entrée"
+        }
+      ]
+    }
+  ]
+}

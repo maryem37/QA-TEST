@@ -3,7 +3,7 @@ name = "qa-test"
 version = "0.1.0"
 requires-python = ">=3.11"
 dependencies = [
-    "anthropic>=2.3.0",
+    "groq>=1.7.0",
     "pydantic>=2.14.2",
     "pytest>=9.2.0",
     "pytest-playwright>=0.10.0",
@@ -12,16 +12,18 @@ dependencies = [
     "requests>=2.34.2",
     "selenium>=4.52.0",
 ]
+
 [tool.pytest.ini_options]
 markers = ["tc(id): identifiant du cas de test (traçabilité)"]
 testpaths = ["tests"]
+xfail_strict = true
 
 [tool.ruff]
 line-length = 100
+extend-exclude = ["scratch"]
 
 [dependency-groups]
 dev = [
     "mypy>=2.4.1",
     "ruff>=0.17.3",
 ]
-

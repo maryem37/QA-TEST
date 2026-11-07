@@ -1,0 +1,54 @@
+{
+  "cases": [
+    {
+      "id": "TC-011-01",
+      "requirement_id": "REQ-011",
+      "title": "Déconnexion réussie et invalidation du token",
+      "type": "nominal",
+      "layer": "UI",
+      "priority": "Moyenne",
+      "preconditions": [
+        "Aucun utilisateur connecté"
+      ],
+      "steps": [
+        {
+          "action": "Envoyer une requête POST http://localhost:8080/api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"password\"}",
+          "expected": "Réponse 200 contenant un champ \"token\" dans le JSON"
+        },
+        {
+          "action": "Enregistrer la valeur du token reçu dans le cookie de navigateur nommé \"token\"",
+          "expected": "Le cookie \"token\" contient le token retourné"
+        },
+        {
+          "action": "Depuis l'interface UI, cliquer sur le bouton \"Déconnexion\"",
+          "expected": "Le cookie \"token\" est supprimé ou vidé"
+        },
+        {
+          "action": "Envoyer une requête GET http://localhost:8080/api/message avec le cookie \"token\" (qui a été supprimé)",
+          "expected": "Réponse 401 indiquant que le jeton n'est plus accepté"
+        }
+      ]
+    },
+    {
+      "id": "TC-011-02",
+      "requirement_id": "REQ-011",
+      "title": "Déconnexion sans session active",
+      "type": "negative",
+      "layer": "UI",
+      "priority": "Moyenne",
+      "preconditions": [
+        "Aucun utilisateur connecté, aucun cookie \"token\" présent"
+      ],
+      "steps": [
+        {
+          "action": "Depuis l'interface UI, cliquer sur le bouton \"Déconnexion\" alors qu'aucune session n'est active",
+          "expected": "L'application reste sur la page de connexion sans générer d'erreur"
+        },
+        {
+          "action": "Envoyer une requête GET http://localhost:8080/api/message sans le cookie \"token\"",
+          "expected": "Réponse 401 avec le message d'erreur \"Invalid credentials\" ou similaire"
+        }
+      ]
+    }
+  ]
+}

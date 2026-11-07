@@ -1,0 +1,112 @@
+{
+  "cases": [
+    {
+      "id": "TC-007-01",
+      "requirement_id": "REQ-007",
+      "title": "Réservation valide acceptée",
+      "type": "nominal",
+      "layer": "UI",
+      "priority": "Haute",
+      "preconditions": [
+        "L'utilisateur est connecté"
+      ],
+      "steps": [
+        {
+          "action": "Accéder à la page de réservation d'une chambre disponible (ex. chambre 101)",
+          "expected": "Le formulaire de réservation s'affiche"
+        },
+        {
+          "action": "Saisir un email valide (ex. client@example.com)",
+          "expected": "Le champ email accepte la valeur"
+        },
+        {
+          "action": "Sélectionner les dates d'arrivée 2024-12-10 et de départ 2024-12-15",
+          "expected": "Les dates sont acceptées et le calendrier indique la disponibilité"
+        },
+        {
+          "action": "Cliquer sur le bouton \"Réserver\"",
+          "expected": "Un message de confirmation apparaît indiquant que la réservation a été enregistrée avec succès"
+        }
+      ]
+    },
+    {
+      "id": "TC-007-02",
+      "requirement_id": "REQ-007",
+      "title": "Réservation refusée – champs obligatoires vides ou email invalide",
+      "type": "negative",
+      "layer": "UI",
+      "priority": "Haute",
+      "preconditions": [
+        "L'utilisateur est connecté"
+      ],
+      "steps": [
+        {
+          "action": "Accéder à la page de réservation d'une chambre disponible",
+          "expected": "Le formulaire de réservation s'affiche"
+        },
+        {
+          "action": "Laisser le champ email vide et remplir les dates valides",
+          "expected": "Le champ email reste vide"
+        },
+        {
+          "action": "Cliquer sur le bouton \"Réserver\"",
+          "expected": "Un message d'erreur s'affiche : \"Email est requis\""
+        },
+        {
+          "action": "Répéter l'opération avec un email invalide (ex. client@invalid)",
+          "expected": "Un message d'erreur s'affiche : \"Format d'email invalide\""
+        }
+      ]
+    },
+    {
+      "id": "TC-007-03",
+      "requirement_id": "REQ-007",
+      "title": "Réservation refusée – dates en conflit pour la même chambre",
+      "type": "negative",
+      "layer": "UI",
+      "priority": "Haute",
+      "preconditions": [
+        "Une réservation existante du 2024-12-20 au 2024-12-25 pour la chambre 102"
+      ],
+      "steps": [
+        {
+          "action": "Accéder à la page de réservation de la chambre 102",
+          "expected": "Le formulaire de réservation s'affiche"
+        },
+        {
+          "action": "Saisir un email valide et choisir les dates d'arrivée 2024-12-22 et de départ 2024-12-24 (conflit avec la réservation existante)",
+          "expected": "Les dates sont sélectionnées"
+        },
+        {
+          "action": "Cliquer sur le bouton \"Réserver\"",
+          "expected": "Un message d'erreur s'affiche : \"Les dates sélectionnées sont déjà réservées pour cette chambre\""
+        }
+      ]
+    },
+    {
+      "id": "TC-007-04",
+      "requirement_id": "REQ-007",
+      "title": "Réservation refusée – date de départ antérieure à la date d'arrivée",
+      "type": "negative",
+      "layer": "UI",
+      "priority": "Haute",
+      "preconditions": [
+        "L'utilisateur est connecté"
+      ],
+      "steps": [
+        {
+          "action": "Accéder à la page de réservation d'une chambre disponible",
+          "expected": "Le formulaire de réservation s'affiche"
+        },
+        {
+          "action": "Saisir un email valide, choisir la date d'arrivée 2024-12-15 et la date de départ 2024-12-10",
+          "expected": "Les dates sont saisies"
+        },
+        {
+          "action": "Cliquer sur le bouton \"Réserver\"",
+          "expected": "Un message d'erreur s'affiche : \"La date de départ doit être postérieure à la date d'arrivée\""
+        }
+      ]
+    }
+  ]
+}

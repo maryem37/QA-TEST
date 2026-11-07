@@ -1,0 +1,51 @@
+{
+  "cases": [
+    {
+      "id": "TC-012-01",
+      "requirement_id": "REQ-012",
+      "title": "Lecture des messages avec un jeton valide",
+      "type": "nominal",
+      "layer": "API",
+      "priority": "Haute",
+      "preconditions": [
+        "Obtenir un token valide via POST /api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"password\"}"
+      ],
+      "steps": [
+        {
+          "action": "Envoyer une requête GET /api/message avec le cookie token=<token_obtenu>",
+          "expected": "Réponse 200 et le corps JSON contenant la clé \"messages\" avec la liste des messages"
+        }
+      ]
+    },
+    {
+      "id": "TC-012-02",
+      "requirement_id": "REQ-012",
+      "title": "Lecture des messages sans jeton",
+      "type": "negative",
+      "layer": "API",
+      "priority": "Haute",
+      "preconditions": [],
+      "steps": [
+        {
+          "action": "Envoyer une requête GET /api/message sans le cookie token",
+          "expected": "Réponse 401 (ou 403) indiquant l'absence d'authentification"
+        }
+      ]
+    },
+    {
+      "id": "TC-012-03",
+      "requirement_id": "REQ-012",
+      "title": "Lecture des messages avec un jeton invalide",
+      "type": "negative",
+      "layer": "API",
+      "priority": "Haute",
+      "preconditions": [],
+      "steps": [
+        {
+          "action": "Envoyer une requête GET /api/message avec le cookie token=invalid_token",
+          "expected": "Réponse 401 (ou 403) indiquant que le jeton est invalide ou expiré"
+        }
+      ]
+    }
+  ]
+}
