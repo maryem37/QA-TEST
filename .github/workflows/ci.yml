@@ -29,18 +29,6 @@ jobs:
       - run: docker compose up -d --build
       - run: uv run python scripts/wait_for_app.py
       - run: uv run pytest tests/gold tests/api --ignore-glob="tests/gold/test_ui_*" --junitxml=reports/junit.xml
-      - run: uv run python -m pipeline.coverage_matrix
-        if: always()
-      - run: uv run python -m pipeline.push_results --backend file
-        if: always()
-      - run: uv run python -m pipeline.report
-        if: always()
-        env:
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-      - run: cat reports/report.md >> "$GITHUB_STEP_SUMMARY"
-        if: always()
-      - run: cat reports/traceability.md >> "$GITHUB_STEP_SUMMARY"
-        if: always()
       - run: docker compose logs --tail=100
         if: failure()
       - uses: actions/upload-artifact@v4
@@ -68,6 +56,30 @@ jobs:
           path: |
             reports/junit-ui.xml
             test-results/
+  report:
+    runs-on: ubuntu-24.04
+    needs: [test-api, test-ui]
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --frozen
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with: { name: api-results, path: reports/ }
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with: { name: ui-results, path: . }
+      - run: uv run python -m pipeline.merge_junit
+      - run: uv run python -m pipeline.coverage_matrix
+      - run: uv run python -m pipeline.push_results --backend file
+      - run: uv run python -m pipeline.report
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      - run: cat reports/report.md >> "$GITHUB_STEP_SUMMARY"
+      - run: cat reports/traceability.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with: { name: report, path: reports/ }
   export:
     runs-on: ubuntu-24.04
     needs: lint
