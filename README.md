@@ -58,7 +58,7 @@ Règles de conception :
 | Domaine | Outils |
 |---|---|
 | Environnement | Git/GitHub, Python 3.11, uv, Docker, Docker Compose, Make, VS Code |
-| IA | API LLM (Anthropic), Pydantic, `llm_client.py` |
+| IA | API Groq, Pydantic, `llm_client.py` |
 | Application sous test | restful-booker-platform (sous-module Git) |
 | Gestion de tests | Jira Cloud, Xray (avec `FileBackend` de secours) |
 | Tests | pytest, requests, Playwright, Selenium, ruff |
@@ -72,7 +72,7 @@ Règles de conception :
 - [Python 3.11](https://www.python.org/) et [uv](https://docs.astral.sh/uv/)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (démarré, avec au moins 8 Go de RAM conseillés)
 - [Make](https://www.gnu.org/software/make/) (GnuWin32 3.81 suffit sous Windows)
-- Une clé API LLM (Anthropic)
+- Une clé API Groq (`GROQ_API_KEY`)
 - Optionnel (phase 3) : un compte Jira Cloud avec Xray
 
 Pas besoin d'installer Java, Maven ni Node : l'application est compilée dans Docker.
@@ -89,7 +89,7 @@ uv sync
 uv run playwright install chromium firefox
 
 # 3. Configurer l'environnement
-copy .env.example .env      # puis renseigner ANTHROPIC_API_KEY, etc.
+copy .env.example .env      # puis renseigner GROQ_API_KEY et LLM_MODEL
 
 # 4. Démarrer l'application sous test
 make up
@@ -113,7 +113,7 @@ Copier `.env.example` vers `.env`. Ce fichier n'est jamais commité.
 
 | Variable | Rôle |
 |---|---|
-| `ANTHROPIC_API_KEY` | Clé de l'API LLM |
+| `GROQ_API_KEY` | Clé de l'API Groq |
 | `LLM_MODEL` | Modèle utilisé (à épingler) |
 | `PROMPT_VERSION` | Version des prompts (`v1`) |
 | `BASE_URL` | URL de l'application sous test (`http://localhost:8080`) |
