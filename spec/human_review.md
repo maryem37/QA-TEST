@@ -18,3 +18,4 @@ générés dans `cases/` sont validés séparément par `pipeline.check_cases`.
 | 2026-11-07 | `cases/REQ-005.json` | Suppression UI décrite avec les sélecteurs observés; suppression d'id inexistant classée API. | Le champ de recherche inventé n'existe pas dans l'interface. |
 | 2026-11-07 | `tests/gold/test_ui_pw_room_edit_delete.py` | Ajout d'un test UI de suppression avec création API et nettoyage garanti. | Vérifier le parcours réel et éviter de modifier les chambres initiales. |
 | 2026-11-07 | `README.md` | Ajout de DEF-003 comme exemple de faux positif retiré après vérification UI. | Documenter une limite de classification des défauts. |
+| 2026-11-07 | tests/gold/test_ui_pw_room_edit_delete.py | Ajout du test Playwright de modification du prix (TC-904-02). | Vérifier l'enregistrement du prix via l'interface et l'API, avec nettoyage de la chambre de test. |

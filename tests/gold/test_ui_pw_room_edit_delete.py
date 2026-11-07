@@ -51,3 +51,24 @@ def test_admin_deletes_room_via_ui(page: Page, base_url, admin):
     finally:
         if _get_room(admin, base_url, room_id):
             admin.delete(f"{base_url}/api/room/{room_id}", timeout=10)
+
+
+@pytest.mark.tc("TC-904-02")
+def test_admin_edits_room_price_via_ui(page: Page, base_url, admin):
+    name = f"QA{uuid.uuid4().hex[:5]}"
+    room_id = _create_room(admin, base_url, name)
+    try:
+        _login(page)
+        row = page.get_by_test_id("roomlisting").filter(has_text=name)
+        row.get_by_text(name).click()
+        page.get_by_role("button", name="Edit").click()
+        page.get_by_role("textbox", name="Room price:").fill("345")
+        with page.expect_response(
+            lambda r: r.request.method == "PUT" and "/api/room/" in r.url
+        ) as updated:
+            page.get_by_role("button", name="Update").click()
+        assert updated.value.ok
+        assert _get_room(admin, base_url, room_id)["roomPrice"] == 345
+    finally:
+        if _get_room(admin, base_url, room_id):
+            admin.delete(f"{base_url}/api/room/{room_id}", timeout=10)
