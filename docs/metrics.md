@@ -17,3 +17,14 @@ Tests qui détectent bug-001 :
 Lecture : la suite détecte les défauts de contenu des réponses, mais pas les défauts de code de
 statut masqués par la passerelle. Les 7 tests `xfail` (DEF-001 et DEF-002) restent inchangés
 avec le bug. Résultat identique en local et en CI (GitHub Actions, ubuntu-24.04).
+## Reproductibilité
+
+| Vérification | Résultat |
+|---|---|
+| Deux exports locaux successifs (`make sync`), dossier supprimé entre les deux | 34 fichiers, empreintes identiques |
+| Export local (Windows) contre export CI (ubuntu-24.04) | `MOCK-1.json` identique : 89AB77B1…668D |
+| Deux runs CI consécutifs sur `main` (statuts des 23 tests, `scripts/compare_runs.py`) | 0 différence |
+| Run CI contre exécution locale | à compléter après l'étape 1 |
+
+Limite : le commentaire du LLM n'est pas reproductible (pas de cache en CI), alors que les chiffres du
+rapport, l'export et les statuts le sont. Les durées varient d'un run à l'autre et sont exclues de la comparaison.
