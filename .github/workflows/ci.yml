@@ -28,7 +28,7 @@ jobs:
       - run: uv sync --frozen
       - run: docker compose up -d --build
       - run: uv run python scripts/wait_for_app.py
-      - run: uv run pytest tests/gold tests/api --junitxml=reports/junit.xml
+      - run: uv run pytest tests/gold tests/api --ignore-glob="tests/gold/test_ui_*" --junitxml=reports/junit.xml
       - run: uv run python -m pipeline.coverage_matrix
         if: always()
       - run: uv run python -m pipeline.push_results --backend file
@@ -46,6 +46,28 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with: { name: api-results, path: reports/ }
+  test-ui:
+    runs-on: ubuntu-24.04
+    needs: lint
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with: { submodules: true }
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --frozen
+      - run: uv run playwright install --with-deps chromium
+      - run: docker compose up -d --build
+      - run: uv run python scripts/wait_for_app.py
+      - run: uv run pytest tests/gold/test_ui_pw_*.py tests/ui_playwright --tracing retain-on-failure --output test-results --junitxml=reports/junit-ui.xml
+      - run: docker compose logs --tail=100
+        if: failure()
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ui-results
+          path: |
+            reports/junit-ui.xml
+            test-results/
   export:
     runs-on: ubuntu-24.04
     needs: lint
