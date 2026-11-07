@@ -1,24 +1,40 @@
 import os
 import sys
 import time
-import urllib.error
-import urllib.request
 
+import requests
 from dotenv import load_dotenv
 
 load_dotenv()
-url = os.environ.get("BASE_URL", "http://localhost:8080")
+BASE = os.environ.get("BASE_URL", "http://localhost:8080").rstrip("/")
+
+CHECKS = [
+    ("GET", "/api/room", None),
+    ("GET", "/api/branding", None),
+    ("GET", "/api/message", None),
+    ("POST", "/api/auth/login", {"username": "admin", "password": "password"}),
+]
+
+
+def failing() -> list[str]:
+    bad = []
+    for method, path, body in CHECKS:
+        try:
+            r = requests.request(method, BASE + path, json=body, timeout=10)
+            if r.status_code != 200:
+                bad.append(f"{method} {path} -> {r.status_code}")
+        except requests.RequestException as e:
+            bad.append(f"{method} {path} -> {type(e).__name__}")
+    return bad
 
 
 for i in range(1, 61):
-    try:
-        urllib.request.urlopen(url, timeout=5)
-        print(f"App prête : {url}")
+    bad = failing()
+    if not bad:
+        print(f"App prête : {BASE} (tous les services répondent)")
         sys.exit(0)
-    except (urllib.error.URLError, ConnectionError, TimeoutError):
-        print(f"Attente de l'application ({i}/60)...")
-        time.sleep(5)
+    print(f"Attente ({i}/60) : {'; '.join(bad)}")
+    time.sleep(5)
 
-
-print("L'application n'a pas démarré", file=sys.stderr)
+print("L'application n'est pas prête", file=sys.stderr)
 sys.exit(1)
