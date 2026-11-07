@@ -15,5 +15,5 @@ Tests qui détectent bug-001 :
 - `test_delete_room_succeeds` (gold, effet de bord)
 
 Lecture : la suite détecte les défauts de contenu des réponses, mais pas les défauts de code de
-statut masqués par la passerelle. Les 7 tests `xfail` (DEF-001, DEF-002, DEF-003) restent inchangés
+statut masqués par la passerelle. Les 7 tests `xfail` (DEF-001 et DEF-002) restent inchangés
 avec le bug. Résultat identique en local et en CI (GitHub Actions, ubuntu-24.04).
