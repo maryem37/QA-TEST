@@ -8,71 +8,55 @@
       "layer": "UI",
       "priority": "Haute",
       "preconditions": [
-        "L'administrateur possède un compte valide",
-        "Le serveur est démarré"
+        "Le site est démarré",
+        "L'administrateur connaît les identifiants admin / password"
       ],
       "steps": [
         {
-          "action": "Envoyer une requête POST /api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"password\"}",
-          "expected": "Réponse 200 avec un token dans le corps"
+          "action": "Ouvrir /admin et se connecter avec admin / password",
+          "expected": "La page /admin/rooms affiche le tableau des chambres et le formulaire de création"
         },
         {
-          "action": "Stocker le token et le placer dans le cookie 'token'",
-          "expected": "Cookie 'token' contenant le token"
+          "action": "Saisir un numéro de chambre unique, choisir le type Single, accessible = true, prix 120, cocher WiFi",
+          "expected": "Les champs acceptent la saisie"
         },
         {
-          "action": "Accéder à la page de création de chambre dans l'UI admin",
-          "expected": "Formulaire de création affiché"
+          "action": "Cliquer sur Create",
+          "expected": "La requête de création aboutit (réponse 200)"
         },
         {
-          "action": "Remplir le formulaire : numéro='104', type='Single', prix=120, accessible=true, description='Nouvelle chambre', features=['WiFi'], image='url.jpg'",
-          "expected": "Les champs sont acceptés"
-        },
-        {
-          "action": "Soumettre le formulaire",
-          "expected": "Message de succès 'Chambre créée avec succès'"
-        },
-        {
-          "action": "Envoyer une requête GET /api/room avec le cookie token",
-          "expected": "Réponse 200 contenant la chambre avec roomName '104' et les valeurs fournies"
+          "action": "Interroger GET /api/room",
+          "expected": "La liste contient la chambre avec le numéro saisi, le type Single, le prix 120, accessible true et l'équipement WiFi"
         }
       ]
     },
     {
       "id": "TC-003-02",
       "requirement_id": "REQ-003",
-      "title": "Échec de création d'une chambre avec prix invalide",
+      "title": "Refus de création d'une chambre avec numéro vide et prix invalide",
       "type": "negative",
       "layer": "UI",
       "priority": "Haute",
       "preconditions": [
-        "L'administrateur possède un compte valide",
-        "Le serveur est démarré"
+        "Le site est démarré",
+        "L'administrateur connaît les identifiants admin / password"
       ],
       "steps": [
         {
-          "action": "Envoyer une requête POST /api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"password\"}",
-          "expected": "Réponse 200 avec un token"
+          "action": "Ouvrir /admin et se connecter avec admin / password",
+          "expected": "La page /admin/rooms affiche le formulaire de création"
         },
         {
-          "action": "Stocker le token dans le cookie 'token'",
-          "expected": "Cookie 'token' contenant le token"
+          "action": "Laisser le numéro vide et saisir le prix abc",
+          "expected": "Les champs acceptent la saisie"
         },
         {
-          "action": "Accéder à la page de création de chambre dans l'UI admin",
-          "expected": "Formulaire affiché"
+          "action": "Cliquer sur Create",
+          "expected": "Le message « Failed to create room » s'affiche"
         },
         {
-          "action": "Remplir le formulaire : numéro='', type='Double', prix='abc', accessible=false, description='Test', features=[], image=''",
-          "expected": "Les champs sont invalides"
-        },
-        {
-          "action": "Soumettre le formulaire",
-          "expected": "Message d'erreur indiquant 'Numéro de chambre requis' ou 'Prix invalide'"
-        },
-        {
-          "action": "Envoyer une requête GET /api/room avec le cookie token",
-          "expected": "La liste des chambres ne contient pas de nouvelle entrée"
+          "action": "Interroger GET /api/room",
+          "expected": "Le nombre de chambres n'a pas changé"
         }
       ]
     }

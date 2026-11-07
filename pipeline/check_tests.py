@@ -1,12 +1,12 @@
-﻿"""Contrôles statiques des tests générés (tests/api)."""
+﻿"""Contrôles statiques des tests générés (tests/api et tests/ui_playwright)."""
 
 import re
 import subprocess
 import sys
 from pathlib import Path
 
-TESTS = Path("tests/api")
-files = sorted(TESTS.glob("test_*.py"))
+DIRS = [Path("tests/api"), Path("tests/ui_playwright")]
+files = sorted(f for d in DIRS for f in d.glob("test_*.py"))
 errors: list[str] = []
 
 for f in files:
@@ -25,12 +25,16 @@ for f in files:
     if re.search(r"\btime\.sleep\s*\(", src):
         errors.append(f"{f.name} : time.sleep interdit (utiliser des attentes explicites)")
 
+    if "ui_playwright" in f.parts and re.search(r"\bwait_for_timeout\s*\(", src):
+        errors.append(f"{f.name} : wait_for_timeout interdit (utiliser expect)")
+
     for url in re.findall(r"https?://[^\s\"')]+", src):
         if not re.match(r"https?://(localhost|127\.0\.0\.1)", url):
             errors.append(f"{f.name} : appel externe interdit ({url})")
 
 if files:
-    r = subprocess.run([sys.executable, "-m", "ruff", "check", "tests/api"], check=False)
+    dirs = [str(d) for d in DIRS if d.exists()]
+    r = subprocess.run([sys.executable, "-m", "ruff", "check", *dirs], check=False)
     if r.returncode:
         errors.append("ruff a signalé des erreurs")
 

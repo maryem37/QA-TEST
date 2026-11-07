@@ -22,19 +22,19 @@ def test_admin_creates_room_via_ui(page: Page, base_url, admin):
     page.get_by_role("checkbox", name="WiFi").check()
     page.get_by_role("checkbox", name="Safe").check()
     page.get_by_role("checkbox", name="TV").check()
-    page.get_by_role("button", name="Create").click()
+
+    with page.expect_response(
+        lambda r: r.request.method == "POST" and "/api/room" in r.url
+    ) as created:
+        page.get_by_role("button", name="Create").click()
+    assert created.value.ok
 
     room_id = None
     try:
-        # Vérification principale : la chambre existe côté API (indépendante du rendu)
-        for _ in range(10):
-            rooms = admin.get(f"{base_url}/api/room", timeout=10).json()["rooms"]
-            found = [r for r in rooms if r["roomName"] == name]
-            if found:
-                room_id = found[0]["roomid"]
-                break
-            page.wait_for_timeout(500)
+        rooms = admin.get(f"{base_url}/api/room", timeout=10).json()["rooms"]
+        found = [r for r in rooms if r["roomName"] == name]
         assert found, f"la chambre {name} n'a pas été créée"
+        room_id = found[0]["roomid"]
         assert found[0]["roomPrice"] == 234
         assert found[0]["accessible"] is True
         assert {"WiFi", "Safe", "TV"} <= set(found[0]["features"])

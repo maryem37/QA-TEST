@@ -23,17 +23,15 @@ Base URL : http://localhost:8080
   - bouton : `get_by_role("button", name="Create")`
 
 ## Messages observés
-- Saisie invalide (numéro vide ou prix non numérique) : bandeau rouge « Failed to create room ». Le message ne précise pas le champ en cause. Aucune chambre créée.
-- Création valide : ? (message de succès / ligne ajoutée sans rechargement : à compléter)
+- Numéro vide et prix non numérique : « Failed to create room »; aucune chambre n'est créée.
+- Numéro vide avec un prix valide : « Room name must be set ».
+- Numéro rempli et prix non numérique : « Failed to create room »; aucune chambre n'est créée.
+- Création valide : message ou ligne de confirmation à relever après observation.
 
 ## Règles pour les tests
 - Ne jamais inventer un message : utiliser uniquement ceux de ce fichier.
 - Vérifier l'effet côté API (GET /api/room) en plus de l'écran.
 - Les chambres créées portent un nom unique (uuid) et sont supprimées via l'API dans un bloc finally.
-## Messages observés
-- Numéro de chambre vide : « Room name must be set » (zone alert). Aucune chambre créée.
-- Numéro rempli, prix non numérique : « Failed to create room ». Aucune chambre créée.
-- Création valide : ? (à compléter)
 
 ## Valeurs possibles
 - Types : Single, Twin, Double, Family, Suite
