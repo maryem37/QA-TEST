@@ -8,7 +8,7 @@ concurrency:
 
 jobs:
   lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
@@ -18,7 +18,7 @@ jobs:
       - run: uv run python -m pipeline.check_tests
 
   test-api:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: lint
     timeout-minutes: 30
     steps:
@@ -47,7 +47,7 @@ jobs:
         if: always()
         with: { name: api-results, path: reports/ }
   export:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: lint
     steps:
       - uses: actions/checkout@v4
