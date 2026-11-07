@@ -1,4 +1,4 @@
-﻿# Défauts observés
+# Défauts observés
 
 Les défauts décrivent un écart entre le comportement observé du site et le
 comportement attendu défini par les exigences (`requirements/REQ-xxx.md`).
@@ -26,15 +26,10 @@ comportement attendu défini par les exigences (`requirements/REQ-xxx.md`).
 - Statut : ouvert.
 - Réserve : le défaut est établi par rapport à REQ-012, pas à l'intention des auteurs.
 
-## Configuration amont : passerelle assets vers le service room
-
-Le `docker-compose.yml` amont ne définit pas `ROOM_API`. L'asset utilise donc
-son URL par défaut `http://localhost:3001`; dans un conteneur, localhost désigne
-le conteneur assets lui-même. Cela explique `ECONNREFUSED 127.0.0.1:3001` et
-les erreurs observées lors de l'utilisation du compose amont.
-
-Le compose racine de ce dépôt construit `assets/Dockerfile`, qui définit
-`ROOM_API=http://rbp-room:3001` sur le réseau Compose. Cette configuration
-corrige le problème pour l'environnement de test de ce dépôt. La suppression
-passe désormais par la passerelle dans `tests/gold/test_api_create_room.py`;
-ce problème n'est donc suivi ici comme défaut applicatif ni marqué xfail.
+## DEF-003 : RETIRÉ (faux positif)
+- Hypothèse initiale : DELETE /api/room/<id> renvoie 500 via la passerelle.
+- Vérification : suppression via l'interface (Playwright), DELETE /api/room/<id> -> 202,
+  la ligne disparaît, l'API ne contient plus la chambre.
+- Conclusion : pas de défaut. Les 500 précédents venaient de nos appels de test
+  (GET/DELETE directs hors session de l'interface), pas de l'application.
+- Statut : fermé, retiré du rapport.
