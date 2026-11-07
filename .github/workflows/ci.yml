@@ -38,3 +38,30 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with: { name: api-results, path: reports/ }
+  export:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --frozen
+      - name: Export 1
+        run: uv run python -m pipeline.export --backend file
+      - name: Empreintes après export 1
+        run: sha256sum mapping.json reports/xray_mock/tests/*.json > /tmp/run1.txt
+      - name: Export 2 (idempotence)
+        run: uv run python -m pipeline.export --backend file
+      - name: Vérifier absence de doublon et stabilité
+        run: |
+          expected=$(python3 -c "import json,glob;print(sum(len(json.load(open(f))['cases']) for f in glob.glob('cases/REQ-*.json')))")
+          actual=$(ls reports/xray_mock/tests | wc -l)
+          echo "attendu=$expected obtenu=$actual"
+          test "$expected" -eq "$actual"
+          sha256sum mapping.json reports/xray_mock/tests/*.json > /tmp/run2.txt
+          diff /tmp/run1.txt /tmp/run2.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: export-file
+          path: |
+            reports/xray_mock/
+            mapping.json      
