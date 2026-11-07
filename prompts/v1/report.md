@@ -8,3 +8,5 @@ Règles :
   ou d'un problème de configuration, en te basant uniquement sur la description fournie.
 - Signale les exigences non couvertes par un test automatisé.
 - Aucun texte hors de ces trois sections.
+- N'affirme aucune conséquence (fuite de données, indisponibilité, - - impact métier) qui ne figure
+- pas dans la description du défaut. Si l'impact est inconnu, écris « impact à évaluer ».
