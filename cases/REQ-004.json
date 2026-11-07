@@ -3,62 +3,44 @@
     {
       "id": "TC-004-01",
       "requirement_id": "REQ-004",
-      "title": "Modification du prix d'une chambre - cas nominal",
+      "title": "Modification du prix d'une chambre via l'interface admin",
       "type": "nominal",
       "layer": "UI",
       "priority": "Moyenne",
       "preconditions": [
-        "L'administrateur possède un compte valide (username: admin, password: password)",
-        "Le serveur contient les chambres initiales 101, 102, 103",
-        "L'administrateur est connecté à l'application"
+        "Le site est démarré",
+        "Une chambre de test existe (créée par l'API, nom unique, jamais 101 à 103)"
       ],
       "steps": [
         {
-          "action": "Accéder à la page de gestion des chambres",
-          "expected": "La liste des chambres s'affiche avec leurs informations actuelles"
+          "action": "Ouvrir /admin et se connecter avec admin / password",
+          "expected": "La page /admin/rooms affiche la chambre de test"
         },
         {
-          "action": "Cliquer sur le bouton \"Modifier\" de la chambre 101",
-          "expected": "Le formulaire de modification de la chambre 101 s'ouvre"
+          "action": "Ouvrir la chambre de test, cliquer sur Edit, saisir le prix 345, cliquer sur Update",
+          "expected": "La requête PUT /api/room/<id> aboutit (réponse 202)"
         },
         {
-          "action": "Modifier le champ \"Prix\" en saisissant la valeur 120 et valider le formulaire",
-          "expected": "Un message de confirmation \"Chambre mise à jour avec succès\" apparaît"
-        },
-        {
-          "action": "Retourner à la page d'accueil du site",
-          "expected": "Le prix affiché pour la chambre 101 est désormais 120"
+          "action": "Interroger GET /api/room",
+          "expected": "La chambre de test a le prix 345"
         }
       ]
     },
     {
       "id": "TC-004-02",
       "requirement_id": "REQ-004",
-      "title": "Modification d'une chambre avec des données invalides - cas négatif",
+      "title": "Modification d'une chambre avec un prix invalide via l'API",
       "type": "negative",
-      "layer": "UI",
+      "layer": "API",
       "priority": "Moyenne",
       "preconditions": [
-        "L'administrateur possède un compte valide (username: admin, password: password)",
-        "Le serveur contient les chambres initiales 101, 102, 103",
-        "L'administrateur est connecté à l'application"
+        "Une chambre de test existe (créée par l'API)",
+        "Le comportement du serveur pour un prix invalide n'est pas encore observé"
       ],
       "steps": [
         {
-          "action": "Accéder à la page de gestion des chambres",
-          "expected": "La liste des chambres s'affiche"
-        },
-        {
-          "action": "Cliquer sur le bouton \"Modifier\" de la chambre 102",
-          "expected": "Le formulaire de modification de la chambre 102 s'ouvre"
-        },
-        {
-          "action": "Saisir une valeur négative \"-50\" dans le champ \"Prix\" et soumettre le formulaire",
-          "expected": "Un message d'erreur \"Le prix doit être un entier positif\" s'affiche et la modification n'est pas enregistrée"
-        },
-        {
-          "action": "Vérifier sur la page d'accueil que le prix de la chambre 102 reste à 150",
-          "expected": "Le prix affiché pour la chambre 102 demeure 150"
+          "action": "Envoyer PUT /api/room/<id> avec un prix non numérique, cookie token valide",
+          "expected": "La modification est refusée (code à observer) et le prix de la chambre est inchangé"
         }
       ]
     }

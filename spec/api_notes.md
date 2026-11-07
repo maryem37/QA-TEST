@@ -57,9 +57,16 @@ Base URL : http://localhost:8080
 ## POST /api/room
 - Avec jeton : 200, {"success": true} (pas d'id renvoyé : retrouver la chambre via GET /api/room par roomName)
 
-## DELETE (URL de l'interface : à compléter)
-- Direct service room : DELETE http://localhost:3001/room/<roomid> -> 202 (hors proxy, ne pas utiliser dans les tests)
-- Via 8080 : /api/room/<roomid> -> 500 en GET et DELETE (à confirmer avec l'URL de l'interface)
+## PUT /api/room/<roomid>
+- Auth : cookie token.
+- Observé via l'interface : 202.
+- Prix non numérique : code à observer (voir ci-dessous).
+
+## DELETE /api/room/<roomid>
+- Auth : cookie token. Observé : 202, la chambre disparaît.
+
+## DELETE /api/room/<roomid> inexistant
+- Observé : 404 (pas de 500).
 
 ## GET /api/message
 - Comportement ATTENDU (REQ-012) : 401 ou 403 sans jeton valide.

@@ -3,59 +3,44 @@
     {
       "id": "TC-005-01",
       "requirement_id": "REQ-005",
-      "title": "Suppression d'une chambre existante via l'UI",
+      "title": "Suppression d'une chambre via l'interface admin",
       "type": "nominal",
       "layer": "UI",
       "priority": "Moyenne",
       "preconditions": [
-        "L'administrateur est connecté à l'application",
-        "La chambre avec roomid 1 (roomName \"101\") existe dans la base"
+        "Le site est démarré",
+        "Une chambre de test existe (créée par l'API, nom unique, jamais 101 à 103)"
       ],
       "steps": [
         {
-          "action": "Saisir les identifiants admin (username: admin, password: password) sur la page de login et cliquer sur \"Login\"",
-          "expected": "Le serveur renvoie un token valide et l'utilisateur est redirigé vers le tableau de bord admin"
+          "action": "Ouvrir /admin et se connecter avec admin / password",
+          "expected": "La page /admin/rooms affiche la chambre de test"
         },
         {
-          "action": "Naviguer vers la page d'administration des chambres",
-          "expected": "La liste des chambres s'affiche avec la chambre \"101\" visible"
+          "action": "Cliquer sur la croix de la ligne de la chambre de test",
+          "expected": "La requête DELETE /api/room/<id> aboutit (réponse 202) et la ligne disparaît"
         },
         {
-          "action": "Cliquer sur le bouton \"Supprimer\" associé à la chambre \"101\" et confirmer la suppression dans la boîte de dialogue",
-          "expected": "Un message de succès s'affiche (ex. \"Room deleted successfully\")"
-        },
-        {
-          "action": "Effectuer un appel GET /api/room avec le token en cookie",
-          "expected": "Le tableau JSON retourné ne contient plus d'objet dont roomid = 1 ou roomName = \"101\""
+          "action": "Interroger GET /api/room",
+          "expected": "La liste ne contient plus la chambre de test"
         }
       ]
     },
     {
       "id": "TC-005-02",
       "requirement_id": "REQ-005",
-      "title": "Tentative de suppression d'une chambre inexistante via l'UI",
+      "title": "Suppression d'une chambre inexistante via l'API",
       "type": "negative",
-      "layer": "UI",
+      "layer": "API",
       "priority": "Moyenne",
       "preconditions": [
-        "L'administrateur est connecté à l'application"
+        "Le site est démarré",
+        "L'identifiant 999999 n'existe pas"
       ],
       "steps": [
         {
-          "action": "Saisir les identifiants admin et se connecter",
-          "expected": "Connexion réussie, tableau de bord admin affiché"
-        },
-        {
-          "action": "Naviguer vers la page d'administration des chambres",
-          "expected": "La liste des chambres existantes s'affiche"
-        },
-        {
-          "action": "Saisir un identifiant de chambre invalide (ex. 999) dans le champ de recherche et cliquer sur \"Supprimer\"",
-          "expected": "Un message d'erreur s'affiche (ex. \"Room not found\") et aucun code 500 n'est retourné"
-        },
-        {
-          "action": "Effectuer un appel GET /api/room avec le token en cookie",
-          "expected": "Le tableau JSON retourné reste identique aux données initiales (rooms 101, 102, 103 toujours présents)"
+          "action": "Envoyer DELETE /api/room/999999 avec un cookie token valide",
+          "expected": "La réponse n'est pas un 500 (code exact à observer)"
         }
       ]
     }
