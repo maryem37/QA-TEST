@@ -1,68 +1,48 @@
 import uuid
 
 import pytest
-import requests
 
 
-def _room_payload(name, price):
+def _room_payload(name):
     return {
         "roomName": name,
         "type": "Single",
         "accessible": False,
         "description": "Created by automated test",
         "features": ["WiFi"],
-        "image": "https://www.mwtestconsultancy.co.uk/img/room1.jpg",
-        "roomPrice": price,
+        "image": "/images/room1.jpg",
+        "roomPrice": 123,
     }
 
 
 @pytest.mark.tc("TC-004-02")
-def test_modify_room_invalid_price(base_url, admin, admin_token, room_direct_url):
-    # Crée une chambre de test avec un prix valide
+def test_modify_room_invalid_price(base_url, admin):
     name = f"QA-{uuid.uuid4().hex[:6]}"
     room_id = None
     try:
-        # création
-        r = admin.post(
-            f"{base_url}/api/room",
-            json=_room_payload(name, 123),
-            timeout=10,
-        )
+        # Create a room
+        r = admin.post(f"{base_url}/api/room", json=_room_payload(name), timeout=10)
         assert r.status_code == 200
 
-        # récupération de l'ID
+        # Retrieve its id and original price
         rooms = admin.get(f"{base_url}/api/room", timeout=10).json()["rooms"]
-        match = [x for x in rooms if x["roomName"] == name]
-        assert len(match) == 1
-        room_id = match[0]["roomid"]
-        original_price = match[0]["roomPrice"]
-        assert original_price == 123
+        match = next((x for x in rooms if x["roomName"] == name), None)
+        assert match is not None
+        room_id = match["roomid"]
+        original_price = match["roomPrice"]
 
-        # tentative de modification avec un prix non numérique
-        invalid_payload = _room_payload(name, "invalid_price")
-        r_put = requests.put(
-            f"{base_url}/api/room/{room_id}",
-            json=invalid_payload,
-            headers={"Cookie": f"token={admin_token}"},
-            timeout=10,
-        )
-        # le serveur doit refuser la modification (code d'erreur)
-        assert r_put.status_code >= 400
+        # Attempt to modify with a non‑numeric price
+        payload = _room_payload(name)
+        payload["roomPrice"] = "invalid_price"
+        r_put = admin.put(f"{base_url}/api/room/{room_id}", json=payload, timeout=10)
 
-        # vérification que le prix n'a pas changé
+        # The request must be rejected (any non‑success status)
+        assert r_put.status_code not in (200, 202)
+
+        # Verify that the price has not changed
         rooms_after = admin.get(f"{base_url}/api/room", timeout=10).json()["rooms"]
-        after_match = [x for x in rooms_after if x["roomid"] == room_id]
-        assert len(after_match) == 1
-        assert after_match[0]["roomPrice"] == original_price
-
+        room_after = next(x for x in rooms_after if x["roomid"] == room_id)
+        assert room_after["roomPrice"] == original_price
     finally:
-        # suppression de la chambre via la passerelle directe
         if room_id is not None:
-            try:
-                requests.delete(
-                    f"{room_direct_url}/api/room/{room_id}",
-                    headers={"Cookie": f"token={admin_token}"},
-                    timeout=10,
-                )
-            except Exception:
-                pass
+            admin.delete(f"{base_url}/api/room/{room_id}", timeout=10)

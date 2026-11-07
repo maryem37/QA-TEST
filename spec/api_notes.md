@@ -60,9 +60,13 @@ Base URL : http://localhost:8080
 ## PUT /api/room/<roomid>
 - Auth : cookie token.
 - Observé via l'interface : 202.
+- Prix non numérique : code à observer (voir ci-dessous).
 
 ## DELETE /api/room/<roomid>
 - Auth : cookie token. Observé : 202, la chambre disparaît.
+
+## DELETE /api/room/<roomid> inexistant
+- Observé : 404 (pas de 500).
 
 ## GET /api/message
 - Comportement ATTENDU (REQ-012) : 401 ou 403 sans jeton valide.
