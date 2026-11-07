@@ -224,6 +224,10 @@ Ordre de priorité si le temps manque : exigences → cas → tests API → CI �
 
 ## Limites et risques
 
+- Le commentaire généré par le LLM reste parfois générique (« impact à évaluer »).
+  Les chiffres, eux, sont calculés par le code et jamais par le modèle.
+- DEF-003 montre qu'un défaut peut être déclaré trop tôt puis retiré après
+  vérification du parcours réel dans l'interface.
 - **Hallucinations** : le LLM peut produire des cas ou des tests faux ; d'où la validation
   Pydantic, les contrôles automatiques et la revue humaine.
 - **Coût et quotas** de l'API LLM : cache par hash et suivi dans les logs JSONL.
