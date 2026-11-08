@@ -46,17 +46,18 @@
     {
       "id": "TC-002-03",
       "requirement_id": "REQ-002",
-      "title": "Échec de connexion avec identifiants invalides",
+      "title": "La liste des chambres est accessible sans authentification",
       "type": "negative",
       "layer": "API",
-      "priority": "Haute",
+      "priority": "Moyenne",
       "preconditions": [
-        "Le serveur API est en marche"
+        "Le site est d?marr?",
+        "Aucun jeton n'est envoy?"
       ],
       "steps": [
         {
-          "action": "Envoyer une requête POST http://localhost:8080/api/auth/login avec le corps {\"username\":\"admin\",\"password\":\"wrong\"}",
-          "expected": "Réponse HTTP 401 avec le corps JSON {\"error\":\"Invalid credentials\"}"
+          "action": "Envoyer GET /api/room sans cookie",
+          "expected": "La r?ponse est 200 et contient la liste des chambres avec leur type et leur prix"
         }
       ]
     }
