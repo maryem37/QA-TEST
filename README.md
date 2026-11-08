@@ -239,6 +239,18 @@ Ordre de priorité si le temps manque : exigences → cas → tests API → CI �
 - **Application en version milestone** : Spring Boot `4.1.0-M4` peut changer ou disparaître
   des dépôts ; le commit du sous-module est épinglé pour cette raison.
 
+## Exigences non couvertes par un test automatisé
+
+| Exigence | Raison |
+|---|---|
+| REQ-007 (réservation refusée) | Libellés de l'interface non relevés ; quota LLM limité |
+| REQ-008 (contact valide) | Idem |
+| REQ-009 (contact refusé) | Idem |
+| REQ-011 (déconnexion) | Idem |
+
+Règle appliquée : aucun test n'est généré tant que les libellés et messages de
+l'interface n'ont pas été observés (`spec/ui_notes.md`).
+
 ## Perspectives
 
 `ZephyrBackend`, Jenkins (`Jenkinsfile.example`), BDD, OpenTelemetry.

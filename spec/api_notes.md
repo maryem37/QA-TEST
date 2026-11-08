@@ -60,7 +60,9 @@ Base URL : http://localhost:8080
 ## PUT /api/room/<roomid>
 - Auth : cookie token.
 - Observé via l'interface : 202.
-- Prix non numérique : code à observer (voir ci-dessous).
+
+## PUT /api/room/<roomid> avec prix non numérique
+- Observé : 400 (Bad Request), la chambre n'est pas modifiée.
 
 ## DELETE /api/room/<roomid>
 - Auth : cookie token. Observé : 202, la chambre disparaît.

@@ -20,3 +20,5 @@ générés dans `cases/` sont validés séparément par `pipeline.check_cases`.
 | 2026-11-07 | `README.md` | Ajout de DEF-003 comme exemple de faux positif retiré après vérification UI. | Documenter une limite de classification des défauts. |
 | 2026-11-07 | tests/gold/test_ui_pw_room_edit_delete.py | Ajout du test Playwright de modification du prix (TC-904-02). | Vérifier l'enregistrement du prix via l'interface et l'API, avec nettoyage de la chambre de test. |
 | 2026-11-07 | prompts/v1/gen_tests_api.md, spec/api_notes.md | Fixtures, URLs, image et nettoyage harmonisés; observations PUT/DELETE précisées. | Empêcher la génération de tests avec des fixtures inexistantes et refléter le comportement constaté via la passerelle. |
+| 2026-11-07 | spec/api_notes.md | PUT avec un prix non numérique documenté comme 400 sans modification. | Résultat vérifié par observation; ce comportement n'est pas un défaut serveur. |
+| 2026-11-07 | tests/api/test_tc_004_02.py | TC-004-02 régénéré après détection d'une fixture inventée, d'une URL externe et de except: pass. | Compléter les règles du prompt API pour contraindre les fixtures, les URLs et la gestion des erreurs. |
