@@ -1,0 +1,196 @@
+
+flowchart LR
+    REQ["requirements/REQ-xxx.md<br/>12 exigences écrites à la main"]
+    NOTES["spec/api_notes.md et spec/ui_notes.md<br/>comportements observés"]
+    GOLD["tests/gold<br/>tests de référence écrits à la main"]
+
+    LLM1["LLM Groq<br/>gen_cases.py"]
+    VAL1{"Pydantic<br/>check_cases"}
+    CASES["cases/REQ-xxx.json<br/>34 cas de test"]
+    REVIEW["Revue humaine<br/>spec/human_review.md"]
+
+    EXPORT["pipeline.export"]
+    FILE["FileBackend<br/>reports/xray_mock"]
+    XRAY["Jira + Xray Cloud<br/>12 Stories, 34 tests"]
+
+    LLM2["LLM Groq<br/>gen_tests.py"]
+    VAL2{"ast.parse, ruff<br/>check_tests"}
+    TESTS["tests/api<br/>tests/ui_playwright"]
+
+    APP["Application sous test<br/>Docker Compose, port 8080"]
+    CI["GitHub Actions"]
+    JUNIT["JUnit XML<br/>API et UI"]
+    REPORT["report.md<br/>matrice de traçabilité"]
+    EXEC["Test Execution Xray"]
+
+    REQ --> LLM1
+    NOTES --> LLM1
+    LLM1 --> VAL1
+    VAL1 -. "invalide : 3 essais max" .-> LLM1
+    VAL1 --> CASES
+    CASES --> REVIEW
+    REVIEW --> EXPORT
+    EXPORT --> FILE
+    EXPORT --> XRAY
+
+    REVIEW --> LLM2
+    NOTES --> LLM2
+    GOLD --> LLM2
+    LLM2 --> VAL2
+    VAL2 -. "invalide : 3 essais max" .-> LLM2
+    VAL2 --> TESTS
+
+    TESTS --> CI
+    APP --> CI
+    CI --> JUNIT
+    JUNIT --> REPORT
+    JUNIT --> EXEC
+    EXEC --> XRAY
+
+flowchart LR
+    LINT["lint<br/>ruff, check_cases, check_tests"]
+    API["test-api<br/>docker compose up (3 essais)<br/>pytest API et gold"]
+    UI["test-ui<br/>docker compose up (3 essais)<br/>pytest Playwright, traces"]
+    EXP["export<br/>FileBackend exécuté 2 fois<br/>aucun doublon, empreintes identiques"]
+    REP["report<br/>merge_junit, coverage_matrix<br/>report.md"]
+    SUM["Résumé du job<br/>GITHUB_STEP_SUMMARY"]
+    ART["Artefacts<br/>JUnit, traces, rapport, export"]
+
+    LINT --> API
+    LINT --> UI
+    LINT --> EXP
+    API -- "api-results" --> REP
+    UI -- "ui-results" --> REP
+    REP --> SUM
+flowchart LR
+    REQ["requirements/REQ-xxx.md<br/>12 exigences écrites à la main"]
+    NOTES["spec/api_notes.md et spec/ui_notes.md<br/>comportements observés"]
+    GOLD["tests/gold<br/>tests de référence écrits à la main"]
+
+    LLM1["LLM Groq<br/>gen_cases.py"]
+    VAL1{"Pydantic<br/>check_cases"}
+    CASES["cases/REQ-xxx.json<br/>34 cas de test"]
+    REVIEW["Revue humaine<br/>spec/human_review.md"]
+
+    EXPORT["pipeline.export"]
+    FILE["FileBackend<br/>reports/xray_mock"]
+    XRAY["Jira + Xray Cloud<br/>12 Stories, 34 tests"]
+
+    LLM2["LLM Groq<br/>gen_tests.py"]
+    VAL2{"ast.parse, ruff<br/>check_tests"}
+    TESTS["tests/api<br/>tests/ui_playwright"]
+
+    APP["Application sous test<br/>Docker Compose, port 8080"]
+    CI["GitHub Actions"]
+    JUNIT["JUnit XML<br/>API et UI"]
+    REPORT["report.md<br/>matrice de traçabilité"]
+    EXEC["Test Execution Xray"]
+
+    REQ --> LLM1
+    NOTES --> LLM1
+    LLM1 --> VAL1
+    VAL1 -. "invalide : 3 essais max" .-> LLM1
+    VAL1 --> CASES
+    CASES --> REVIEW
+    REVIEW --> EXPORT
+    EXPORT --> FILE
+    EXPORT --> XRAY
+
+    REVIEW --> LLM2
+    NOTES --> LLM2
+    GOLD --> LLM2
+    LLM2 --> VAL2
+    VAL2 -. "invalide : 3 essais max" .-> LLM2
+    VAL2 --> TESTS
+
+    TESTS --> CI
+    APP --> CI
+    CI --> JUNIT
+    JUNIT --> REPORT
+    JUNIT --> EXEC
+    EXEC --> XRAY
+
+flowchart LR
+    LINT["lint<br/>ruff, check_cases, check_tests"]
+    API["test-api<br/>docker compose up (3 essais)<br/>pytest API et gold"]
+    UI["test-ui<br/>docker compose up (3 essais)<br/>pytest Playwright, traces"]
+    EXP["export<br/>FileBackend exécuté 2 fois<br/>aucun doublon, empreintes identiques"]
+    REP["report<br/>merge_junit, coverage_matrix<br/>report.md"]
+    SUM["Résumé du job<br/>GITHUB_STEP_SUMMARY"]
+    ART["Artefacts<br/>JUnit, traces, rapport, export"]
+
+    LINT --> API
+    LINT --> UI
+    LINT --> EXP
+    API -- "api-results" --> REP
+    UI -- "ui-results" --> REP
+    REP --> SUM
+    REP --> ART
+    EXP --> ART
+
+sequenceDiagram
+    participant P as pipeline.export
+    participant X as XrayBackend
+    participant J as Jira REST
+    participant G as Xray GraphQL
+
+    P->>X: upsert_requirement(REQ-xxx)
+    X->>J: recherche JQL sur le label REQ-xxx
+    alt Story absente
+        X->>J: création de la Story
+    else Story existante
+        X->>J: mise à jour de la description
+    end
+    X-->>P: clé de la Story
+
+    loop pour chaque cas de test
+        P->>X: upsert_test(cas, Story)
+        X->>J: recherche JQL sur le label TC-xxx-yy
+        alt test absent
+            X->>G: mutation createTest (type Manual, étapes, labels)
+            G-->>X: clé du test
+        else test existant
+            J-->>X: clé du test
+            X->>J: mise à jour du titre et du contenu
+        end
+        X->>J: lien "is tested by" avec la Story, s'il manque
+        X-->>P: clé Jira
+    end
+
+    P->>P: écriture de mapping.xray.json
+
+
+    REP --> ART
+    EXP --> ART
+
+sequenceDiagram
+    participant P as pipeline.export
+    participant X as XrayBackend
+    participant J as Jira REST
+    participant G as Xray GraphQL
+
+    P->>X: upsert_requirement(REQ-xxx)
+    X->>J: recherche JQL sur le label REQ-xxx
+    alt Story absente
+        X->>J: création de la Story
+    else Story existante
+        X->>J: mise à jour de la description
+    end
+    X-->>P: clé de la Story
+
+    loop pour chaque cas de test
+        P->>X: upsert_test(cas, Story)
+        X->>J: recherche JQL sur le label TC-xxx-yy
+        alt test absent
+            X->>G: mutation createTest (type Manual, étapes, labels)
+            G-->>X: clé du test
+        else test existant
+            J-->>X: clé du test
+            X->>J: mise à jour du titre et du contenu
+        end
+        X->>J: lien "is tested by" avec la Story, s'il manque
+        X-->>P: clé Jira
+    end
+
+    P->>P: écriture de mapping.xray.json
+
