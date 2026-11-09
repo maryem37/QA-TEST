@@ -26,7 +26,15 @@ jobs:
         with: { submodules: true }
       - uses: astral-sh/setup-uv@v5
       - run: uv sync --frozen
-      - run: docker compose up -d --build
+      - name: Démarrer l'application (3 essais)
+        run: |
+          for i in 1 2 3; do
+            docker compose up -d --build && exit 0
+            echo "Essai $i en échec, nouvelle tentative dans 15 s"
+            docker compose down || true
+            sleep 15
+          done
+          exit 1
       - run: uv run python scripts/wait_for_app.py
       - run: uv run pytest tests/gold tests/api --ignore-glob="tests/gold/test_ui_*" --junitxml=reports/junit.xml
       - run: docker compose logs --tail=100
@@ -44,7 +52,15 @@ jobs:
       - uses: astral-sh/setup-uv@v5
       - run: uv sync --frozen
       - run: uv run playwright install --with-deps chromium
-      - run: docker compose up -d --build
+      - name: Démarrer l'application (3 essais)
+        run: |
+          for i in 1 2 3; do
+            docker compose up -d --build && exit 0
+            echo "Essai $i en échec, nouvelle tentative dans 15 s"
+            docker compose down || true
+            sleep 15
+          done
+          exit 1
       - run: uv run python scripts/wait_for_app.py
       - run: uv run pytest tests/gold/test_ui_pw_*.py tests/ui_playwright --tracing retain-on-failure --output test-results --junitxml=reports/junit-ui.xml
       - run: docker compose logs --tail=100
@@ -65,7 +81,6 @@ jobs:
       - uses: astral-sh/setup-uv@v5
       - run: uv sync --frozen
       - uses: actions/download-artifact@v4
-        continue-on-error: true
         with: { name: api-results, path: reports/ }
       - uses: actions/download-artifact@v4
         continue-on-error: true
