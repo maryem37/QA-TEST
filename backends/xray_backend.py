@@ -3,7 +3,6 @@
 import os
 import re
 import time
-from datetime import UTC, datetime
 
 import requests
 from dotenv import load_dotenv
@@ -279,12 +278,15 @@ class XrayBackend(TestManagementBackend):
                 "aucun résultat rattachable à un test Xray "
                 "(lancez d'abord make sync BACKEND=xray pour remplir mapping.xray.json)"
             )
-        stamp = datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
         r = self._send(
             "POST",
             f"{XRAY}/import/execution",
             json={
-                "info": {"summary": f"Exécution automatisée {stamp}", "project": self.project},
+                "info": {
+                    "summary": f"Exécution CI {os.getenv('GITHUB_SHA', 'local')[:7]}",
+                    "description": os.getenv("GITHUB_RUN_URL", "Exécution locale"),
+                    "project": self.project,
+                },
                 "tests": list(by_key.values()),
             },
             headers=self._xray_headers(),
