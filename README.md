@@ -56,6 +56,8 @@ requirements/REQ-xxx.md ──► LLM ──► cases/*.json ──► revue hum
                                                           └──► résultats dans Xray
 ```
 
+Schémas détaillés : [docs/architecture.md](docs/architecture.md).
+
 Règles de conception :
 
 - Les **exigences** sont écrites à la main, d'après le comportement **attendu**, pas
